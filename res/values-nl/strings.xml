@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+    <string name="usb_period">.</string>
+    <string name="usb_ok">OK</string>
+    <string name="usb_cancel">Annuleren</string>
+    <string name="usb_3_periods">...</string>
+    <string name="usb_toast_connecting_to">Verbinden voor</string>
+    <string name="usb_toast_phone_data_disabled">Telefoongegevens worden uitgeschakeld.</string>
+    <string name="usb_no_memory_card_notification_title">Geen geheugenkaart geplaatst</string>
+    <string name="usb_no_memory_card_notification_message_title">Geheugenkaart ontbreekt</string>
+    <string name="usb_no_memory_card_notification_message">Plaats een geheugenkaart</string>
+    <string name="usb_selection_notification_title">USB-verbinding</string>
+    <string name="usb_selection_notification_message">Selecteer dit om uw USB-verbinding te beheren</string>
+    <string name="usb_selection_notification_message_for_modem">Raak aan om de verbinding te verbreken en de interne telefoongegevens opnieuw in te schakelen</string>
+    <string name="usb_connection">USB-verbinding</string>
+    <string name="usb_mode_ngp">Portal en hulpprogramma\'s</string>
+    <string name="usb_mode_mtp">Windows Media Sync</string>
+    <string name="usb_mode_msc">De geheugenkaart openen</string>
+    <string name="usb_mode_modem">Telefoon als modem</string>
+    <string name="usb_mode_none">Alleen opladen</string>
+    <string name="usb_toast_insert_card">Plaats een geheugenkaart voor uw media.</string>
+    <string name="usb_progress_message">Overschakelen op</string>
+    <string name="usb_error_message">De USB-verbinding kan niet overschakelen op</string>
+</resources>

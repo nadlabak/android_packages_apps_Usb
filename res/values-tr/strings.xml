@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+    <string name="usb_period">.</string>
+    <string name="usb_ok">Tamam</string>
+    <string name="usb_cancel">İptal</string>
+    <string name="usb_3_periods">...</string>
+    <string name="usb_toast_connecting_to">Bağlanılıyor</string>
+    <string name="usb_toast_phone_data_disabled">Telefondaki veriler devre dışı bırakılacak.</string>
+    <string name="usb_no_memory_card_notification_title">Hafıza kartı takılı değil</string>
+    <string name="usb_no_memory_card_notification_message_title">Hafıza Kartı Yok</string>
+    <string name="usb_no_memory_card_notification_message">Lütfen hafıza kartını takın</string>
+    <string name="usb_selection_notification_title">USB bağlantısı</string>
+    <string name="usb_selection_notification_message">USB bağlantınızı yönetmek için seçin</string>
+    <string name="usb_selection_notification_message_for_modem">Bağlantıyı kesip dahili telefon verilerini yeniden etkinleştirmek için dokunun</string>
+    <string name="usb_connection">USB bağlantısı</string>
+    <string name="usb_mode_ngp">Portal ve Araçlar</string>
+    <string name="usb_mode_mtp">Windows Media Sync</string>
+    <string name="usb_mode_msc">Hafıza Kartı Erişimi</string>
+    <string name="usb_mode_modem">Telefonu Modem Olarak Kullan</string>
+    <string name="usb_mode_none">Yalnızca Şarj Et</string>
+    <string name="usb_toast_insert_card">Lütfen medyanız için bir hafıza kartı takın.</string>
+    <string name="usb_progress_message">Geçiş yap:</string>
+    <string name="usb_error_message">USB bağlantısı değiştirilemiyor:</string>
+</resources>

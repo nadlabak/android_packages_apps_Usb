@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+    <string name="usb_period">.</string>
+    <string name="usb_ok">OK</string>
+    <string name="usb_cancel">Annuler</string>
+    <string name="usb_3_periods">...</string>
+    <string name="usb_toast_connecting_to">Connexion pour</string>
+    <string name="usb_toast_phone_data_disabled">Les données du téléphone vont être désactivées.</string>
+    <string name="usb_no_memory_card_notification_title">Aucune carte mémoire insérée</string>
+    <string name="usb_no_memory_card_notification_message_title">Carte mémoire manquante</string>
+    <string name="usb_no_memory_card_notification_message">Insérez une carte mémoire</string>
+    <string name="usb_selection_notification_title">Connexion USB</string>
+    <string name="usb_selection_notification_message">Sélectionner pour gérer votre connexion USB</string>
+    <string name="usb_selection_notification_message_for_modem">Touchez pour obtenir plus de détails et vous déconnecter</string>
+    <string name="usb_connection">Connexion USB</string>
+    <string name="usb_mode_ngp">Portail &amp; outils</string>
+    <string name="usb_mode_mtp">Synchronisation Windows Media</string>
+    <string name="usb_mode_msc">Accès à la carte mémoire</string>
+    <string name="usb_mode_modem">Téléphone en tant que modem</string>
+    <string name="usb_mode_none">Chargement uniquement</string>
+    <string name="usb_toast_insert_card">Veuillez insérer une carte mémoire où stocker vos médias.</string>
+    <string name="usb_progress_message">Passage à</string>
+    <string name="usb_error_message">La connexion USB ne peut pas passer à</string>
+</resources>

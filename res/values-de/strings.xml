@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+    <string name="usb_period">.</string>
+    <string name="usb_ok">OK</string>
+    <string name="usb_cancel">Abbrechen</string>
+    <string name="usb_3_periods">...</string>
+    <string name="usb_toast_connecting_to">Verbindung für</string>
+    <string name="usb_toast_phone_data_disabled">Telefondaten wird deaktiviert.</string>
+    <string name="usb_no_memory_card_notification_title">Keine Speicherkarte vorhanden.</string>
+    <string name="usb_no_memory_card_notification_message_title">Fehlende Speicherkarte</string>
+    <string name="usb_no_memory_card_notification_message">Legen Sie eine Speicherkarte ein.</string>
+    <string name="usb_selection_notification_title">USB-Verbindung</string>
+    <string name="usb_selection_notification_message">Auswählen zum Verwalten Ihrer USB-Verbindung</string>
+    <string name="usb_selection_notification_message_for_modem">Für Details und zum Trennen der Verbindung berühren</string>
+    <string name="usb_connection">USB-Verbindung</string>
+    <string name="usb_mode_ngp">Portal &amp; Tools</string>
+    <string name="usb_mode_mtp">Synchronisierung von Windows Media</string>
+    <string name="usb_mode_msc">Speicherkarten-Zugriff</string>
+    <string name="usb_mode_modem">Telefon als Modem</string>
+    <string name="usb_mode_none">Nur Laden</string>
+    <string name="usb_toast_insert_card">Legen Sie eine Speicherkarte für Ihre Medien ein.</string>
+    <string name="usb_progress_message">Wechseln zu</string>
+    <string name="usb_error_message">Die USB-Verbindung kann nicht geändert werden zu</string>
+</resources>

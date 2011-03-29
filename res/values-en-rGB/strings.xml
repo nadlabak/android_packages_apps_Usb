@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+    <string name="usb_period">.</string>
+    <string name="usb_ok">OK</string>
+    <string name="usb_cancel">Cancel</string>
+    <string name="usb_3_periods">...</string>
+    <string name="usb_toast_connecting_to">Connecting for</string>
+    <string name="usb_toast_phone_data_disabled">Phone data will be disabled.</string>
+    <string name="usb_no_memory_card_notification_title">No memory card inserted</string>
+    <string name="usb_no_memory_card_notification_message_title">Missing memory card</string>
+    <string name="usb_no_memory_card_notification_message">Please insert memory card</string>
+    <string name="usb_selection_notification_title">USB connection</string>
+    <string name="usb_selection_notification_message">Select to manage your USB connection</string>
+    <string name="usb_selection_notification_message_for_modem">Touch for details and to disconnect</string>
+    <string name="usb_connection">USB connection</string>
+    <string name="usb_mode_ngp">Portal &amp; tools</string>
+    <string name="usb_mode_mtp">Windows media sync</string>
+    <string name="usb_mode_msc">Memory card access</string>
+    <string name="usb_mode_modem">Phone as modem</string>
+    <string name="usb_mode_none">Charge only</string>
+    <string name="usb_toast_insert_card">Please insert a memory card for your media.</string>
+    <string name="usb_progress_message">Switching to</string>
+    <string name="usb_error_message">The USB connection cannot change to</string>
+</resources>

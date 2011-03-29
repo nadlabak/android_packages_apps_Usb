@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+    <string name="usb_period">.</string>
+    <string name="usb_ok">Aceptar</string>
+    <string name="usb_cancel">Cancelar</string>
+    <string name="usb_3_periods">...</string>
+    <string name="usb_toast_connecting_to">Conectando para</string>
+    <string name="usb_toast_phone_data_disabled">Los datos del teléfono se deshabilitarán.</string>
+    <string name="usb_no_memory_card_notification_title">No se ha insertado ninguna tarjeta de memoria.</string>
+    <string name="usb_no_memory_card_notification_message_title">Se ha perdido la tarjeta de memoria.</string>
+    <string name="usb_no_memory_card_notification_message">Inserte la tarjeta de memoria</string>
+    <string name="usb_selection_notification_title">Conexión USB</string>
+    <string name="usb_selection_notification_message">Seleccionar para administrar la conexión USB</string>
+    <string name="usb_selection_notification_message_for_modem">Toca para obtener más información y desconectar</string>
+    <string name="usb_connection">Conexión USB</string>
+    <string name="usb_mode_ngp">Portal y herramientas</string>
+    <string name="usb_mode_mtp">Sincronización de Windows Media</string>
+    <string name="usb_mode_msc">Acceso a tarjeta de memoria</string>
+    <string name="usb_mode_modem">Teléfono como módem</string>
+    <string name="usb_mode_none">Solo carga</string>
+    <string name="usb_toast_insert_card">Introduce una tarjeta de memoria para los archivos multimedia.</string>
+    <string name="usb_progress_message">Cambiando a</string>
+    <string name="usb_error_message">La conexión USB no se puede cambiar a</string>
+</resources>

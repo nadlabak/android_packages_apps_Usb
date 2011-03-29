@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+    <string name="usb_period">.</string>
+    <string name="usb_ok">OK</string>
+    <string name="usb_cancel">Άκυρο</string>
+    <string name="usb_3_periods">...</string>
+    <string name="usb_toast_connecting_to">Σύνδεση για</string>
+    <string name="usb_toast_phone_data_disabled">Τα δεδομένα του τηλεφώνου θα απενεργοποιηθούν.</string>
+    <string name="usb_no_memory_card_notification_title">Δεν έχετε εισαγάγει κάρτα μνήμης</string>
+    <string name="usb_no_memory_card_notification_message_title">Η κάρτα μνήμης λείπει</string>
+    <string name="usb_no_memory_card_notification_message">Εισαγάγετε κάρτα μνήμης</string>
+    <string name="usb_selection_notification_title">Σύνδεση USB</string>
+    <string name="usb_selection_notification_message">Επιλέξτε το για να διαχειρίζεστε τη σύνδεση USB</string>
+    <string name="usb_selection_notification_message_for_modem">Πατήστε το για να αποσυνδέσετε και να ενεργοποιήσετε ξανά τα εσωτερικά δεδομένα του τηλεφώνου</string>
+    <string name="usb_connection">Σύνδεση USB</string>
+    <string name="usb_mode_ngp">Πύλη και εργαλεία</string>
+    <string name="usb_mode_mtp">Συγχρονισμός πολυμέσων των Windows</string>
+    <string name="usb_mode_msc">Πρόσβαση στην κάρτας μνήμης</string>
+    <string name="usb_mode_modem">Τηλέφωνο ως μόντεμ</string>
+    <string name="usb_mode_none">Μόνο φόρτιση</string>
+    <string name="usb_toast_insert_card">Εισαγάγετε κάρτα μνήμης για τα μέσα σας.</string>
+    <string name="usb_progress_message">Αλλαγή σε</string>
+    <string name="usb_error_message">Η σύνδεση USB δεν μπορεί να αλλάξει σε</string>
+</resources>

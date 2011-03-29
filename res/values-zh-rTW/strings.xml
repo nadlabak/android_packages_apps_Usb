@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+    <string name="usb_period">.</string>
+    <string name="usb_ok">確定</string>
+    <string name="usb_cancel">取消</string>
+    <string name="usb_3_periods">...</string>
+    <string name="usb_toast_connecting_to">連接以便</string>
+    <string name="usb_toast_phone_data_disabled">將停用手機資料。</string>
+    <string name="usb_no_memory_card_notification_title">未插入記憶卡</string>
+    <string name="usb_no_memory_card_notification_message_title">記憶卡遺失</string>
+    <string name="usb_no_memory_card_notification_message">請插入記憶卡</string>
+    <string name="usb_selection_notification_title">USB 連線</string>
+    <string name="usb_selection_notification_message">選取以管理 USB 連線</string>
+    <string name="usb_selection_notification_message_for_modem">輕觸即可中斷連線並重新啟用內部手機資料</string>
+    <string name="usb_connection">USB 連線</string>
+    <string name="usb_mode_ngp">入口網站與工具</string>
+    <string name="usb_mode_mtp">Windows Media Sync</string>
+    <string name="usb_mode_msc">記憶卡存取</string>
+    <string name="usb_mode_modem">將手機當數據機</string>
+    <string name="usb_mode_none">不要掛載</string>
+    <string name="usb_toast_insert_card">請插入包含媒體的記憶卡。</string>
+    <string name="usb_progress_message">正在切換至</string>
+    <string name="usb_error_message">USB 連線無法變更為</string>
+</resources>
