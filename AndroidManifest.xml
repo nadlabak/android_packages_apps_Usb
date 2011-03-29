@@ -7,8 +7,8 @@
     <uses-permission android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS" />
     <uses-permission android:name="com.motorola.android.permission.MOT_USB" />
     <application android:label="usb" android:persistent="true">
-        <activity android:name="UsbModeSelectionActivity" android:excludeFromRecents="true" />
-        <activity android:name="UsbErrorActivity" />
+        <activity android:theme="@style/UsbDialog" android:name="UsbModeSelectionActivity" android:excludeFromRecents="true" />
+        <activity android:theme="@style/UsbDialog" android:name="UsbErrorActivity" />
         <service android:name="UsbService" android:process="com.motorola.usb">
             <intent-filter>
                 <action android:name="com.motorola.intent.action.USB_LAUNCH_USBSERVICE" />
