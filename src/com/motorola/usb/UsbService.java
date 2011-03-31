@@ -103,6 +103,7 @@ public class UsbService extends Service
 	public static final int USB_SWITCH_FROM_USBD = 3;
 	public static final int USB_SWITCH_FROM_PHONE_UNLOCK = 4;
 	
+	private boolean pending_usblan_intent = false;
 	private boolean atcmd_service_stopped = false;
 	private boolean mtp_service_stopped = false;
 	private boolean mUsbCableAttached = false;
@@ -110,7 +111,6 @@ public class UsbService extends Service
 	private int mADBStatusChangeMissedNumber = 0;
 	
 	private boolean mMediaMountedReceiverRegistered = false;
-	private boolean mIsHIDMode = false;
 	private int mIsSwitchFrom = USB_SWITCH_FROM_IDLE;
 	private int mUsbState = USB_STATE_IDLE;
 	private int mNewUsbMode = USB_MODE_MSC;
@@ -452,20 +452,11 @@ public class UsbService extends Service
 				{
 					mUsbState = USB_STATE_WAIT_ENUM;
 					
-					if (!mIsHIDMode)
-					{
-						if (mADBEnabled)
-							mUsbListener.sendUsbModeSwitchCmd(getUsbModeSwitchCmdADB(mCurrentUsbMode));
-						else
-							mUsbListener.sendUsbModeSwitchCmd(getUsbModeSwitchCmd(mCurrentUsbMode));
-					}
-					else 
-					{
-						if (mADBEnabled)
-							mUsbListener.sendUsbModeSwitchCmd("usb_mode_adb");
-						else
-							mUsbListener.sendUsbModeSwitchCmd("usb_mode_hid");
-					}
+					if (mADBEnabled)
+						mUsbListener.sendUsbModeSwitchCmd(getUsbModeSwitchCmdADB(mCurrentUsbMode));
+					else
+						mUsbListener.sendUsbModeSwitchCmd(getUsbModeSwitchCmd(mCurrentUsbMode));
+					
 				}
 				else if (event.equals("usb_cable_enumerated"))
 				{
@@ -596,20 +587,10 @@ public class UsbService extends Service
 				{
 					mUsbState = USB_STATE_WAIT_ENUM;
 					
-					if(mIsHIDMode)
-					{
-						if(mADBEnabled)
-							mUsbListener.sendUsbModeSwitchCmd("usb_mode_adb");
-						else
-							mUsbListener.sendUsbModeSwitchCmd("usb_mode_hid");
-					} 
+					if(mADBEnabled)
+						mUsbListener.sendUsbModeSwitchCmd(getUsbModeSwitchCmdADB(mCurrentUsbMode));
 					else
-					{
-						if(mADBEnabled)
-							mUsbListener.sendUsbModeSwitchCmd(getUsbModeSwitchCmdADB(mCurrentUsbMode));
-						else
-							mUsbListener.sendUsbModeSwitchCmd(getUsbModeSwitchCmd(mCurrentUsbMode));
-					}
+						mUsbListener.sendUsbModeSwitchCmd(getUsbModeSwitchCmd(mCurrentUsbMode));				
 				}
 			
 				break;
@@ -874,29 +855,33 @@ public class UsbService extends Service
 	private void handleUsbModeSwitchFromPhoneUnlock()
 	{
 		Log.d("UsbService", "handleUsbModeSwitchFromPhoneUnlock()");
-		if (mIsHIDMode && (mUsbState == USB_STATE_SERVICE_STARTUP))
-		{
-			mIsHIDMode = false;
-			mIsSwitchFrom = USB_SWITCH_FROM_PHONE_UNLOCK;
-			mUsbEvent = "usb_switch_from_phone_unlock";
-			UsbEventHandler(mUsbEvent);
-		}
+		//HID mode removed
 	}
 
 	private void sendUsblanDownIntent()
 	{
 		Log.d("UsbService", "sendUsblanDownIntent()");
-		Intent intent = new Intent();
-		intent.setAction("com.motorola.intent.action.USBLANDOWN");
-		sendBroadcast(intent);
+		
+		if (pending_usblan_intent)
+		{
+			Intent intent = new Intent();
+			intent.setAction("com.motorola.intent.action.USBLANDOWN");
+			sendBroadcast(intent);
+			pending_usblan_intent = false;
+		}
 	}
 
 	private void sendUsblanUpIntent()
 	{
 		Log.d("UsbService", "sendUsblanDownIntent()");
-		Intent intent = new Intent();
-		intent.setAction("com.motorola.intent.action.USBLANUP");
-		sendBroadcast(intent);
+		
+		if (mCurrentUsbMode == USB_MODE_NGP)
+		{
+			Intent intent = new Intent();
+			intent.setAction("com.motorola.intent.action.USBLANUP");
+			sendBroadcast(intent);
+			pending_usblan_intent = true;
+		}
 	}
 
 	private void setUsbConnectionNotificationVisibility(boolean visible, boolean forceDefaultSound)
@@ -1040,7 +1025,10 @@ public class UsbService extends Service
 		if (mUsbState == USB_STATE_SERVICE_STARTUP)
 		{
 			ReadCurrentUsbMode();
-			if (((event.equals("usbd_start_ngp")) && (mCurrentUsbMode == 0)) || ((event.equals("usbd_start_mtp")) && (mCurrentUsbMode == 1)) || ((event.equals("usbd_start_msc_mount")) && (mCurrentUsbMode == 2)) || ((event.equals("usbd_start_acm")) && (mCurrentUsbMode == 3)))
+			if (((event.equals("usbd_start_ngp")) && (mCurrentUsbMode == USB_MODE_NGP)) 
+					|| ((event.equals("usbd_start_mtp")) && (mCurrentUsbMode == USB_MODE_MTP)) 
+					|| ((event.equals("usbd_start_msc_mount")) && (mCurrentUsbMode == USB_MODE_MSC)) 
+					|| ((event.equals("usbd_start_acm")) && (mCurrentUsbMode == USB_MODE_MODEM)))
 			{
 				mUsbEvent = "usb_start_service";
 				UsbEventHandler(mUsbEvent);
@@ -1059,7 +1047,6 @@ public class UsbService extends Service
 	public void handleUsbCableDetachment()
 	{
 		Log.d("UsbService", "handleUsbCableDetachment()");
-		mIsHIDMode = false;
 		
 		if (mUsbCableAttached)
 		{
@@ -1087,15 +1074,13 @@ public class UsbService extends Service
 		Log.d("UsbService", "handleUsbModeSwitchComplete(), received enum event: " + event);
 		
 		if (event.equals("usb_mode_ngp:ok") || event.equals("usb_mode_mtp:ok")
-				|| event.equals("usb_mode_msc:ok") || event.equals("usb_mode_modem:ok")
-				|| event.equals("usb_mode_hid:ok"))
+				|| event.equals("usb_mode_msc:ok") || event.equals("usb_mode_modem:ok"))
 		{
 			mUsbEvent = "usb_device_enum_ok";
 			UsbEventHandler(mUsbEvent);
 		}
 		else if (event.equals("usb_mode_ngp:fail") || event.equals("usb_mode_mtp:fail")
-				|| event.equals("usb_mode_msc:fail") || event.equals("usb_mode_modem:fail")
-				|| event.equals("usb_mode_hid:fail"))
+				|| event.equals("usb_mode_msc:fail") || event.equals("usb_mode_modem:fail"))
 		{
 			mUsbEvent = "usb_device_enum_fail";
 			UsbEventHandler(mUsbEvent);
