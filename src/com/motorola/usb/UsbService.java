@@ -873,7 +873,7 @@ public class UsbService extends Service
 
 	private void sendUsblanUpIntent()
 	{
-		Log.d("UsbService", "sendUsblanDownIntent()");
+		Log.d("UsbService", "sendUsblanUpIntent()");
 		
 		if (mCurrentUsbMode == USB_MODE_NGP)
 		{
