@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+    <string name="usb_period">.</string>
+    <string name="usb_ok">确定</string>
+    <string name="usb_cancel">取消</string>
+    <string name="usb_3_periods">...</string>
+    <string name="usb_toast_connecting_to">正在连接USB为</string>
+    <string name="usb_toast_phone_data_disabled">手机数据将被禁用.</string>
+    <string name="usb_no_memory_card_notification_title">未插入内存卡</string>
+    <string name="usb_no_memory_card_notification_message_title">无内存卡</string>
+    <string name="usb_no_memory_card_notification_message">请插入内存卡</string>
+    <string name="usb_selection_notification_title">USB连接</string>
+    <string name="usb_selection_notification_message">选择在计算机上管理媒体和数据同步</string>
+    <string name="usb_selection_notification_message_for_modem">点按断开连接后重新启用内部手机数据</string>
+    <string name="usb_connection">USB连接</string>
+    <string name="usb_mode_ngp">摩托罗拉手机门户</string>
+    <string name="usb_mode_mtp">Windows媒体同步</string>
+    <string name="usb_mode_msc">USB大容量存储</string>
+    <string name="usb_mode_modem">将手机用作调制解调器</string>
+    <string name="usb_mode_none">无</string>
+    <string name="usb_toast_insert_card">请插入内存卡,以便使用媒体功能.</string>
+    <string name="usb_progress_message">正在切换至</string>
+    <string name="usb_error_message">USB连接无法更改为</string>
+</resources>
