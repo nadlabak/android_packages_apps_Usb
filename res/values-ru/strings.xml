@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+	<string name="usb_period">.</string>
+	<string name="usb_ok">ОК</string>
+	<string name="usb_cancel">Отмена</string>
+	<string name="usb_3_periods">...</string>
+	<string name="usb_toast_connecting_to">Поключение USB в режиме</string>
+	<string name="usb_toast_phone_data_disabled">Данные телефона отключены.</string>
+	<string name="usb_no_memory_card_notification_title">Карта памяти не установлена</string>
+	<string name="usb_no_memory_card_notification_message_title">Отсутствует карта памяти</string>
+	<string name="usb_no_memory_card_notification_message">Установите карту памяти</string>
+	<string name="usb_selection_notification_title">USB-подключение</string>
+	<string name="usb_selection_notification_message">Выберите для управления подключением USB</string>
+	<string name="usb_selection_notification_message_for_modem">Косн. для откл. и открытия внутр. данных телефона</string>
+	<string name="usb_connection">USB подключение</string>
+	<string name="usb_mode_ngp">Портал телефона</string>
+	<string name="usb_mode_mtp">Синхронизация Windows Media</string>
+	<string name="usb_mode_msc">Доступ к карте памяти</string>
+	<string name="usb_mode_modem">Телефон как модем</string>
+	<string name="usb_mode_none">Зарядка</string>
+	<string name="usb_toast_insert_card">Вставьте карту памяти для медиа.</string>
+	<string name="usb_progress_message">Перекл. на</string>
+	<string name="usb_error_message">USB-подключение невозм. изменить на</string>
+</resources>
