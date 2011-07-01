@@ -451,7 +451,6 @@ public class UsbService extends Service
 				if (event.equals("usb_cable_inserted"))
 				{
 					mUsbState = USB_STATE_WAIT_ENUM;
-					
 					if (mADBEnabled)
 						mUsbListener.sendUsbModeSwitchCmd(getUsbModeSwitchCmdADB(mCurrentUsbMode));
 					else
@@ -497,6 +496,8 @@ public class UsbService extends Service
 							enableInternalDataConnectivity(false);
 						else
 							enableInternalDataConnectivity(true);
+
+						emitReconfigurationIntent(true);
 					}
 								
 					if (mADBStatusChangeMissedNumber != 0)
@@ -928,6 +929,13 @@ public class UsbService extends Service
 		}
 	}
 
+	private void emitReconfigurationIntent(boolean connected)
+	{
+		Intent reconfigureIntent = new Intent("com.android.internal.usb.reconfigured");
+		reconfigureIntent.putExtra("connected", connected);
+		sendBroadcast(reconfigureIntent);
+	}
+
 	private void setUsbModeFromAtCmd(int mode)
 	{
 		Log.d("UsbService", "setUsbModeFromAtCmd()");
@@ -1010,6 +1018,7 @@ public class UsbService extends Service
 				enableInternalDataConnectivity(false);
 				
 			sendBroadcast(new Intent("com.motorola.intent.action.USB_CABLE_ATTACHED"));
+			emitReconfigurationIntent(true);
 		}
 		catch (IllegalStateException ex)
 		{
@@ -1054,6 +1063,7 @@ public class UsbService extends Service
 			setUsbConnectionNotificationVisibility(false, false);
 			enableInternalDataConnectivity(true);
 			sendBroadcast(new Intent("com.motorola.intent.action.USB_CABLE_DETACHED"));
+			emitReconfigurationIntent(false);
 		}
 		
 		mUsbEvent = "usb_cable_removed";
