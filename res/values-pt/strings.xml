@@ -13,7 +13,7 @@
     <string name="usb_selection_notification_message">Selecione para gerenciar sua conexão USB</string>
     <string name="usb_selection_notification_message_for_modem">Toque para desconectar e reativar conexão de dados interna do telefone</string>
     <string name="usb_connection">Conexão USB</string>
-    <string name="usb_mode_ngp">Portal & Ferramentas</string>
+    <string name="usb_mode_ngp">Portal &amp; Ferramentas</string>
     <string name="usb_mode_mtp">Sincronização Windows Media</string>
     <string name="usb_mode_msc">Acesso ao Cartão de Memória</string>
     <string name="usb_mode_modem">Telefone como Modem</string>
