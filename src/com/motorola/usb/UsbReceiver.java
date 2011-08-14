@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2011 Skrilax_CZ
- * Decompilation of Motorola Usb.apk
+ * Based on Motorola Usb.apk
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,21 +18,21 @@
 package com.motorola.usb;
 
 import android.content.BroadcastReceiver;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
-public class UsbReceiver extends BroadcastReceiver
-{
-	public void onReceive(Context context, Intent intent)
-	{
-		String action = intent.getAction();
+public class UsbReceiver extends BroadcastReceiver {
+    private static final String TAG = "UsbReceiver";
 
-		Log.d("UsbReceiver", "onReceive(), received intent -- " + action);
-		
-		if (action.equals("android.intent.action.BOOT_COMPLETED"))
-			context.startService( new Intent("com.motorola.intent.action.USB_LAUNCH_USBSERVICE"));
-		
-	}
+    public void onReceive(Context context, Intent intent) {
+        String action = intent.getAction();
+
+        Log.d(TAG, "onReceive(), received intent -- " + action);
+
+        if (action.equals(Intent.ACTION_BOOT_COMPLETED)) {
+            context.startService( new Intent(UsbService.ACTION_LAUNCH_SERVICE));
+        }
+    }
 }
+

@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-		package="com.motorola.usb">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.motorola.usb">
     <uses-permission android:name="android.permission.WRITE_SETTINGS" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.MODIFY_PHONE_STATE" />
     <uses-permission android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS" />
-    <uses-permission android:name="com.motorola.android.permission.MOT_USB" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+<!--<uses-permission android:name="com.motorola.android.permission.MOT_USB" />-->
     <application android:label="usb" android:persistent="true">
         <activity android:theme="@style/UsbDialog" android:name="UsbModeSelectionActivity" android:excludeFromRecents="true" />
         <activity android:theme="@style/UsbDialog" android:name="UsbErrorActivity" />

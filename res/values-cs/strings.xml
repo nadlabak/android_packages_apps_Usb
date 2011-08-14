@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+    <string name="usb_toast_connecting">USB bude připojeno jako \'%s\'.</string>
+    <string name="usb_toast_phone_data_disabled">Datové připojení v telefonu bude vypnuto.</string>
+    <string name="usb_selection_notification_title">USB připojení</string>
+    <string name="usb_selection_notification_message">Vyberte pro správu USB připojení</string>
+    <string name="usb_selection_notification_message_for_modem">Vyberte pro odpojení a reaktivaci datového připojení v telefonu</string>
+    <string name="usb_tethered_message">Mód USB připojení nelze měnit pokud je USB tethering aktivní.</string>
+    <string name="usb_connection">USB připojení</string>
+    <string name="usb_mode_ngp">Portal &amp; Tools</string>
+    <string name="usb_mode_mtp">Windows Media Sync</string>
+    <string name="usb_mode_msc">Přístup k paměťové kartě</string>
+    <string name="usb_mode_rndis">USB tethering</string>
+    <string name="usb_mode_modem">Telefon jako modem</string>
+    <string name="usb_mode_none">Pouze nabíjení</string>
+    <string name="usb_error_message">USB připojení se nepodařilo změnit na \'%s\'.</string>
+    <string name="preparing_ums">SD karta se připravuje.</string>
+    <string name="ums_ready">SD karta je nyní přístupná přes USB.</string>
+</resources>
