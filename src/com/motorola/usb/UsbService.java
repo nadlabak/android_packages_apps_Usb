@@ -49,76 +49,78 @@ public class UsbService extends Service
 {
 	private static final int[] mUsbModeClassMapping = new int[]{ 3, 1, 2, 4, 4 };
 	private static final String[] mUsbModeString = new String[]
-																										{
-																											"Motorola Phone Tools",
-																											"Windows Media Sync",
-																											"Memory Card Management",
-																											"Phone as Modem",
-																											"None",					
-																										};
-																										
+	{
+		"Motorola Phone Tools",
+		"Windows Media Sync",
+		"Memory Card Management",
+		"Phone as Modem",
+		"None",
+	};
+
 	private static final String[] mUsbModeSwitchCmdADBMapping = new String[]
-																																 {
-																																 	"usb_mode_ngp_adb",
-																																 	"usb_mode_mtp_adb",
-																																 	"usb_mode_msc_adb",
-																																 	"usb_mode_ngp_adb",
-																																 	"usb_mode_msc_adb",
-																																 };
+	{
+		"usb_mode_ngp_adb",
+		"usb_mode_mtp_adb",
+		"usb_mode_msc_adb",
+		"usb_mode_ngp_adb",
+		"usb_mode_msc_adb",
+	};
+
 	private static final String[] mUsbModeSwitchCmdMapping = new String[]
-																															{
-																																"usb_mode_ngp",
-																															 	"usb_mode_mtp",
-																															 	"usb_mode_msc",
-																															 	"usb_mode_ngp",
-																															 	"usb_mode_msc",
-																															};
+	{
+		"usb_mode_ngp",
+		"usb_mode_mtp",
+		"usb_mode_msc",
+		"usb_mode_ngp",
+		"usb_mode_msc",
+	};
+
 	private static final String[] mUsbStateString = new String[]
-																										 {
-																										  "USB Idle State",
-																										  "USB Wait Device Enum State",
-																										  "USB Service Startup State",
-																										  "USB In-Switch Wait DevNod Close State",
-																										  "USB Detach Wait DevNod Close State",
-																										  "USB Attach Wait DevNod Close State",
-																										 };
-	
+	{
+		"USB Idle State",
+		"USB Wait Device Enum State",
+		"USB Service Startup State",
+		"USB In-Switch Wait DevNod Close State",
+		"USB Detach Wait DevNod Close State",
+		"USB Attach Wait DevNod Close State",
+	};
+
 	public static final int USB_STATE_IDLE = 0;
 	public static final int USB_STATE_WAIT_ENUM = 1;
 	public static final int USB_STATE_SERVICE_STARTUP = 2;
 	public static final int USB_STATE_SWITCH_DEVNOD_CLOSE = 3;
 	public static final int USB_STATE_DETACH_DEVNOD_CLOSE = 4;
 	public static final int USB_STATE_ATTACH_DEVNOD_CLOSE = 5;
-	
+
 	public static final int USB_MODE_NGP = 0;
 	public static final int USB_MODE_MTP = 1;
 	public static final int USB_MODE_MSC = 2;
 	public static final int USB_MODE_MODEM = 3;
 	public static final int USB_MODE_NONE = 4;
-	
+
 	public static final int USB_SWITCH_FROM_IDLE = -1;
 	public static final int USB_SWITCH_FROM_UI = 0;
 	public static final int USB_SWITCH_FROM_AT_CMD = 1;
 	public static final int USB_SWITCH_FROM_ADB = 2;
 	public static final int USB_SWITCH_FROM_USBD = 3;
 	public static final int USB_SWITCH_FROM_PHONE_UNLOCK = 4;
-	
+
 	private boolean pending_usblan_intent = false;
 	private boolean atcmd_service_stopped = false;
 	private boolean mtp_service_stopped = false;
 	private boolean mUsbCableAttached = false;
 	private boolean mADBEnabled = false;
 	private int mADBStatusChangeMissedNumber = 0;
-	
+
 	private boolean mMediaMountedReceiverRegistered = false;
 	private int mIsSwitchFrom = USB_SWITCH_FROM_IDLE;
 	private int mUsbState = USB_STATE_IDLE;
 	private int mNewUsbMode = USB_MODE_MSC;
 	private int mCurrentUsbMode = USB_MODE_MSC;
-	
+
 	private String mUsbEvent;
 	private UsbListener mUsbListener;
-	
+
 	private UEventObserver mUEventObserver;
 	private ITelephony mPhoneService;
 	private BroadcastReceiver mUsbServiceReceiver;
@@ -134,7 +136,7 @@ public class UsbService extends Service
 			{
 				String action = intent.getAction();
 				Log.d("UsbService", "onReceive(), received intent:" + action);
-				
+
 				if (action.equals("com.motorola.intent.action.USB_ATCMD_DEV_CLOSED"))
 				{
 					atcmd_service_stopped = true;
@@ -159,7 +161,7 @@ public class UsbService extends Service
 				{
 					String indexStr = intent.getStringExtra("USB_MODE_INDEX");
 					int index;
-					
+
 					try
 					{
 						index = Integer.valueOf(indexStr);
@@ -170,14 +172,14 @@ public class UsbService extends Service
 					{
 						index = USB_MODE_MSC;
 					}
-					
+
 					setUsbModeFromUI(index);
 				}
 				else if(action.equals("com.motorola.intent.action.USB_MODE_SWITCH_FROM_ATCMD"))
 				{
 					String indexStr = intent.getStringExtra("USB_MODE_INDEX");
 					int index;
-					
+
 					try
 					{
 						index = Integer.valueOf(indexStr);
@@ -188,38 +190,38 @@ public class UsbService extends Service
 					{
 						index = USB_MODE_MSC;
 					}
-					
+
 					setUsbModeFromAtCmd(index);
 				}
 			}
 		};
-		
+
 		mMediaMountedReceiver = new BroadcastReceiver()
 		{
 			public void onReceive(Context context, Intent intent)
 			{
 				String action = intent.getAction();
 				int i = Log.d("UsbService", "onReceive(), received intent:" + action);
-				
+
 				if (action.equals("android.intent.action.MEDIA_MOUNTED"))
 					startService(new Intent("com.motorola.intent.action.USB_MTP_CONNECTION"));
-				
+
 			}
 		};
-		
+
 		mUEventObserver = new UEventObserver()
 		{
 			public void onUEvent(UEvent uevent)
 			{
 				Log.d("UsbService", "USBLAN Uevent: " + uevent.toString());
-				
+
 				if(Integer.parseInt(uevent.get("USB_CONNECT")) == 1)
 				{
 					Log.d("UsbService", "USBLAN enabled");
-					
+
 					if(mUsbState == USB_STATE_SERVICE_STARTUP)
 						sendUsblanUpIntent();
-				} 
+				}
 				else
 				{
 					Log.d("UsbService", "USBLAN disabled");
@@ -233,21 +235,21 @@ public class UsbService extends Service
 	{
 		Log.d("UsbService", "DeviceEnumPostAction()");
 		ReadCurrentUsbMode();
-		
+
 		switch (getUsbModeClass(mCurrentUsbMode))
 		{
 			case 0:
 				StartAtCmdService();
 				break;
-				
+
 			case 1:
 				StartMtpService();
 				break;
-			
+
 			case 2:
 				EnterMassStorageMode();
 				break;
-				
+
 			case 3:
 				StartAtCmdService();
 				StartMtpService();
@@ -259,31 +261,31 @@ public class UsbService extends Service
 	{
 		Log.d("UsbService", "DeviceEnumPreAction()");
 		ReadCurrentUsbMode();
-		
+
 		switch (getUsbModeClass(mCurrentUsbMode))
 		{
 			case 0:
 				StartWaitDevNodeClosedTimer();
 				StopAtCmdService();
 				break;
-				
+
 			case 1:
 				StartWaitDevNodeClosedTimer();
 				StopMtpService();
 				break;
-				
+
 			case 2:
 				ExitMassStorageMode();
 				mUsbEvent = "usb_devnode_closed";
 				UsbEventHandler(mUsbEvent);
 				break;
-			
+
 			case 3:
 				StartWaitDevNodeClosedTimer();
 				StopAtCmdService();
 				StopMtpService();
 				break;
-				
+
 			default:
 				mUsbEvent = "usb_devnode_closed";
 				UsbEventHandler(mUsbEvent);
@@ -295,18 +297,18 @@ public class UsbService extends Service
 	{
 		Log.d("UsbService", "EnterMassStorageMode()");
 		IMountService mountService = IMountService.Stub.asInterface(ServiceManager.getService("mount"));
-		
+
 		if (mountService != null)
 		{
 			try
 			{
-				mountService.setUsbMassStorageEnabled(true);      
+				mountService.setUsbMassStorageEnabled(true);
 			}
 			catch (RemoteException localRemoteException)
 			{
 				// ???????
 			}
-			
+
 			sendBroadcast(new Intent("com.motorola.intent.action.USB_ENTER_MSC_MODE"));
 		}
 	}
@@ -315,18 +317,18 @@ public class UsbService extends Service
 	 {
 		Log.d("UsbService", "EnterMassStorageMode()");
 		IMountService mountService = IMountService.Stub.asInterface(ServiceManager.getService("mount"));
-		
+
 		if (mountService != null)
 		{
 			try
 			{
-				mountService.setUsbMassStorageEnabled(false);      
+				mountService.setUsbMassStorageEnabled(false);
 			}
 			catch (RemoteException localRemoteException)
 			{
 				// ???????
 			}
-			
+
 			sendBroadcast(new Intent("com.motorola.intent.action.USB_EXIT_MSC_MODE"));
 		}
 	}
@@ -334,11 +336,11 @@ public class UsbService extends Service
 	private void ReadCurrentUsbMode()
 	{
 		Log.d("UsbService", "ReadCurrentUsbMode()");
-		
+
 		try
 		{
 			int modeFromPC = System.getInt(getContentResolver(), "USB_MODE_FROM_PC");
-			
+
 			if (modeFromPC == -1)
 			{
 				try
@@ -356,7 +358,7 @@ public class UsbService extends Service
 			else
 			{
 				mCurrentUsbMode = modeFromPC;
-				Log.d("UsbService", "Current Usb Mode: " + mUsbModeString[mCurrentUsbMode]); 
+				Log.d("UsbService", "Current Usb Mode: " + mUsbModeString[mCurrentUsbMode]);
 			}
 		}
 		catch (SettingNotFoundException ex)
@@ -372,7 +374,7 @@ public class UsbService extends Service
 				Log.d("UsbService", "read usb setting exception");
 				System.putInt(getContentResolver(), "USB_SETTING", mCurrentUsbMode);
 			}
-		}   
+		}
 	}
 
 	private void StartAtCmdService()
@@ -385,7 +387,7 @@ public class UsbService extends Service
 	{
 		Log.d("UsbService", "StartMtpService()");
 		String storageState = Environment.getExternalStorageState();
-		
+
 		if ((storageState.equals("shared")) || (storageState.equals("checking")))
 		{
 			Log.d("UsbService", "StartMtpService(), sd card currently shared or checking");
@@ -410,7 +412,7 @@ public class UsbService extends Service
 			{
 				WaitDevNodeClosedTimeout();
 			}
-			
+
 		}, 2000);
 	}
 
@@ -424,7 +426,7 @@ public class UsbService extends Service
 	{
 		Log.d("UsbService", "StopMtpService()");
 		stopService(new Intent("com.motorola.intent.action.USB_MTP_CONNECTION"));
-		
+
 		if (mMediaMountedReceiverRegistered)
 		{
 			unregisterReceiver(mMediaMountedReceiver);
@@ -446,7 +448,7 @@ public class UsbService extends Service
 		ReadCurrentUsbMode();
 
 		switch(mUsbState)
-		{		
+		{
 			case USB_STATE_IDLE:
 				if (event.equals("usb_cable_inserted"))
 				{
@@ -455,7 +457,7 @@ public class UsbService extends Service
 						mUsbListener.sendUsbModeSwitchCmd(getUsbModeSwitchCmdADB(mCurrentUsbMode));
 					else
 						mUsbListener.sendUsbModeSwitchCmd(getUsbModeSwitchCmd(mCurrentUsbMode));
-					
+
 				}
 				else if (event.equals("usb_cable_enumerated"))
 				{
@@ -464,13 +466,13 @@ public class UsbService extends Service
 					mIsSwitchFrom = USB_SWITCH_FROM_IDLE;
 				}
 				break;
-				
+
 			case USB_STATE_WAIT_ENUM:
 				if (event.equals("usb_cable_removed"))
 				{
 					if (mIsSwitchFrom == USB_SWITCH_FROM_UI)
 						UsbModeSwitchFail();
-						
+
 					mUsbListener.sendUsbModeSwitchCmd("usb_unload_driver");
 					mUsbState = USB_STATE_IDLE;
 					mIsSwitchFrom = USB_SWITCH_FROM_IDLE;
@@ -478,20 +480,20 @@ public class UsbService extends Service
 				else if (event.equals("usb_device_enum_ok"))
 				{
 					if (mIsSwitchFrom == USB_SWITCH_FROM_UI)
-					{		
+					{
 						WriteNewUsbMode(mNewUsbMode);
 						UsbModeSwitchSuccess();
-						System.putInt(getContentResolver(), "USB_MODE_FROM_PC", -1);			
+						System.putInt(getContentResolver(), "USB_MODE_FROM_PC", -1);
 					}
 					else if(mIsSwitchFrom == USB_SWITCH_FROM_USBD || mIsSwitchFrom == USB_SWITCH_FROM_AT_CMD)
 						System.putInt(getContentResolver(), "USB_MODE_FROM_PC", mNewUsbMode);
-					
+
 					ReadCurrentUsbMode();
-					
+
 					if(mIsSwitchFrom != USB_SWITCH_FROM_IDLE)
 					{
 						setUsbConnectionNotificationVisibility(true, false);
-						
+
 						if (mCurrentUsbMode == USB_MODE_MODEM)
 							enableInternalDataConnectivity(false);
 						else
@@ -499,7 +501,7 @@ public class UsbService extends Service
 
 						emitReconfigurationIntent(true);
 					}
-								
+
 					if (mADBStatusChangeMissedNumber != 0)
 					{
 						mADBStatusChangeMissedNumber = mADBStatusChangeMissedNumber - 1;
@@ -513,45 +515,45 @@ public class UsbService extends Service
 					{
 						mUsbState = USB_STATE_SERVICE_STARTUP;
 						mIsSwitchFrom = USB_SWITCH_FROM_IDLE;
-					}	
-					
+					}
+
 				}
 				break;
-				
+
 			case USB_STATE_SERVICE_STARTUP:
 				if(event.equals("usb_start_service"))
 				{
 					DeviceEnumPostAction();
 					mUsbState = USB_STATE_SERVICE_STARTUP;
-				} 
+				}
 				else if(event.equals("usb_cable_removed"))
 				{
 					mUsbState = USB_STATE_DETACH_DEVNOD_CLOSE;
 					DeviceEnumPreAction();
-				} 
-				else if(event.equals("usb_switch_from_ui") || event.equals("usb_switch_from_atcmd") 
-							|| event.equals("usb_switch_from_adb") || event.equals("usb_switch_from_usbd") 
+				}
+				else if(event.equals("usb_switch_from_ui") || event.equals("usb_switch_from_atcmd")
+							|| event.equals("usb_switch_from_adb") || event.equals("usb_switch_from_usbd")
 							|| event.equals("usb_switch_from_phone_unlock"))
 				{
 					mUsbState = USB_STATE_SWITCH_DEVNOD_CLOSE;
 					DeviceEnumPreAction();
 				}
 				break;
-				
+
 			case USB_STATE_SWITCH_DEVNOD_CLOSE:
 				if(event.equals("usb_cable_removed"))
 				{
 					if(mIsSwitchFrom == USB_SWITCH_FROM_UI)
 						UsbModeSwitchFail();
-						
+
 					mIsSwitchFrom = USB_SWITCH_FROM_IDLE;
 					mUsbState = USB_STATE_DETACH_DEVNOD_CLOSE;
-				} 
+				}
 				else if(event.equals("usb_devnode_closed"))
 				{
 					mUsbState = USB_STATE_WAIT_ENUM;
-					
-					if(mIsSwitchFrom == USB_SWITCH_FROM_UI || mIsSwitchFrom == USB_SWITCH_FROM_AT_CMD 
+
+					if(mIsSwitchFrom == USB_SWITCH_FROM_UI || mIsSwitchFrom == USB_SWITCH_FROM_AT_CMD
 						|| mIsSwitchFrom == USB_SWITCH_FROM_USBD)
 					{
 						if(mADBEnabled)
@@ -559,17 +561,17 @@ public class UsbService extends Service
 						else
 							mUsbListener.sendUsbModeSwitchCmd(getUsbModeSwitchCmd(mNewUsbMode));
 					}
-					else if (mIsSwitchFrom == USB_SWITCH_FROM_ADB 
+					else if (mIsSwitchFrom == USB_SWITCH_FROM_ADB
 										|| mIsSwitchFrom == USB_SWITCH_FROM_PHONE_UNLOCK)
 					{
 						if(mADBEnabled)
 							mUsbListener.sendUsbModeSwitchCmd(getUsbModeSwitchCmdADB(mCurrentUsbMode));
 						else
 							mUsbListener.sendUsbModeSwitchCmd(getUsbModeSwitchCmd(mCurrentUsbMode));
-					} 
+					}
 				}
 				break;
-			
+
 			case USB_STATE_DETACH_DEVNOD_CLOSE:
 				if(event.equals("usb_cable_inserted"))
 					mUsbState = USB_STATE_ATTACH_DEVNOD_CLOSE;
@@ -580,20 +582,20 @@ public class UsbService extends Service
 					mIsSwitchFrom = USB_SWITCH_FROM_IDLE;
 				}
 				break;
-				
+
 			case USB_STATE_ATTACH_DEVNOD_CLOSE:
 				if(event.equals("usb_cable_removed"))
 					mUsbState = USB_STATE_DETACH_DEVNOD_CLOSE;
 				else if(event.equals("usb_devnode_closed"))
 				{
 					mUsbState = USB_STATE_WAIT_ENUM;
-					
+
 					if(mADBEnabled)
 						mUsbListener.sendUsbModeSwitchCmd(getUsbModeSwitchCmdADB(mCurrentUsbMode));
 					else
-						mUsbListener.sendUsbModeSwitchCmd(getUsbModeSwitchCmd(mCurrentUsbMode));				
+						mUsbListener.sendUsbModeSwitchCmd(getUsbModeSwitchCmd(mCurrentUsbMode));
 				}
-			
+
 				break;
 		}
 	}
@@ -604,32 +606,32 @@ public class UsbService extends Service
 		Intent myIntent = new Intent();
 		myIntent.setAction("android.intent.action.MAIN");
 		myIntent.addCategory("android.intent.category.LAUNCHER");
-		myIntent.setFlags(Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED | Intent.FLAG_ACTIVITY_NEW_TASK); 
+		myIntent.setFlags(Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED | Intent.FLAG_ACTIVITY_NEW_TASK);
 		myIntent.setClassName("com.motorola.usb", "com.motorola.usb.UsbErrorActivity");
-		
+
 		switch (mNewUsbMode)
 		{
 			case USB_MODE_NGP:
 				myIntent.putExtra("USB_MODE_STRING", getString(R.string.usb_mode_ngp));
 				break;
-				
+
 			case USB_MODE_MTP:
 				myIntent.putExtra("USB_MODE_STRING", getString(R.string.usb_mode_mtp));
 				break;
-				
+
 			case USB_MODE_MSC:
 				myIntent.putExtra("USB_MODE_STRING", getString(R.string.usb_mode_msc));
 				break;
-				
+
 			case USB_MODE_MODEM:
 				myIntent.putExtra("USB_MODE_STRING", getString(R.string.usb_mode_modem));
 				break;
-			
+
 			case USB_MODE_NONE:
 				myIntent.putExtra("USB_MODE_STRING", getString(R.string.usb_mode_none));
 				break;
 		}
-	 
+
 		startActivity(myIntent);
 	}
 
@@ -664,7 +666,7 @@ public class UsbService extends Service
 	{
 		Log.d("UsbService", "enableInternalDataConnectivity(): " + String.valueOf(enable));
 		getPhoneService();
-		
+
 		if (mPhoneService != null)
 		{
 			if (enable)
@@ -697,7 +699,7 @@ public class UsbService extends Service
 	private boolean getModemAvailableFlex()
 	{
 		String str;
-		
+
 		if (TelephonyManager.getDefault().getPhoneType() == 1)
 		{
 			Log.d("UsbModeSelectionActivity", "umts phone");
@@ -708,14 +710,14 @@ public class UsbService extends Service
 			Log.d("UsbModeSelectionActivity", "cdma phone");
 			str = SystemProperties.get("ro.modem_available", "1");
 		}
-		
+
 		return str.equals("1");
 	}
 
 	private boolean getNGPAvailableFlex()
 	{
 		String str;
-		
+
 		if (TelephonyManager.getDefault().getPhoneType() == 1)
 		{
 			Log.d("UsbModeSelectionActivity", "umts phone");
@@ -726,10 +728,10 @@ public class UsbService extends Service
 			Log.d("UsbModeSelectionActivity", "cdma phone");
 			str = SystemProperties.get("ro.ngp_available", "0");
 		}
-		
+
 		return str.equals("1");
 	}
-	
+
 	private boolean getMtpAvailableFlex()
 	{
 		return SystemProperties.get("ro.mtp_available", "1").equals("1");
@@ -745,52 +747,52 @@ public class UsbService extends Service
 	{
 		Log.d("UsbService", "getToastStringForCableAttach()");
 		ReadCurrentUsbMode();
-		
+
 		switch (mCurrentUsbMode)
 		{
 			case USB_MODE_NGP:
 				return getString(R.string.usb_toast_connecting_to) + " " + getString(R.string.usb_mode_ngp);
-				
+
 			case USB_MODE_MTP:
 				return getString(R.string.usb_toast_connecting_to) + " " + getString(R.string.usb_mode_mtp);
-				
+
 			case USB_MODE_MSC:
 				return getString(R.string.usb_toast_connecting_to) + " " + getString(R.string.usb_mode_msc);
-				
+
 			case USB_MODE_MODEM:
-				return getString(R.string.usb_toast_connecting_to) + " " + getString(R.string.usb_mode_modem) + 
+				return getString(R.string.usb_toast_connecting_to) + " " + getString(R.string.usb_mode_modem) +
 					getString(R.string.usb_period) + " " + getString(R.string.usb_toast_phone_data_disabled);
-					
+
 			case USB_MODE_NONE:
 				return getString(R.string.usb_toast_connecting_to) + " " + getString(R.string.usb_mode_none);
 		}
-		
+
 		return null;
 	}
 
 	private String getToastStringForModeSwitch()
 	{
 		int i = Log.d("UsbService", "getToastStringForModeSwitch()");
-		
+
 		switch (mNewUsbMode)
 		{
 			case USB_MODE_NGP:
 				return getString(R.string.usb_toast_connecting_to) + " " + getString(R.string.usb_mode_ngp);
-				
+
 			case USB_MODE_MTP:
 				return getString(R.string.usb_toast_connecting_to) + " " + getString(R.string.usb_mode_mtp);
-				
+
 			case USB_MODE_MSC:
 				return getString(R.string.usb_toast_connecting_to) + " " + getString(R.string.usb_mode_msc);
-				
+
 			case USB_MODE_MODEM:
-				return getString(R.string.usb_toast_connecting_to) + " " + getString(R.string.usb_mode_modem) + 
+				return getString(R.string.usb_toast_connecting_to) + " " + getString(R.string.usb_mode_modem) +
 					getString(R.string.usb_period) + " " + getString(R.string.usb_toast_phone_data_disabled);
-					
+
 			case USB_MODE_NONE:
 				return getString(R.string.usb_toast_connecting_to) + " " + getString(R.string.usb_mode_none);
 		}
-		
+
 		return null;
 	}
 
@@ -812,22 +814,22 @@ public class UsbService extends Service
 	private void handleAtCmdMtpDevClosed()
 	{
 		Log.d("UsbService", "handleAtCmdMtpDevClosed()");
-		
-		if ((mUsbState != USB_STATE_SWITCH_DEVNOD_CLOSE) && (mUsbState != USB_STATE_DETACH_DEVNOD_CLOSE) 
+
+		if ((mUsbState != USB_STATE_SWITCH_DEVNOD_CLOSE) && (mUsbState != USB_STATE_DETACH_DEVNOD_CLOSE)
 				&& (mUsbState != USB_STATE_ATTACH_DEVNOD_CLOSE))
 		{
 			atcmd_service_stopped = false;
 			mtp_service_stopped = false;
 		}
-		
+
 		ReadCurrentUsbMode();
 		int usbModeClass = getUsbModeClass(mCurrentUsbMode);
-		
+
 		if (usbModeClass == 0)
 		{
 			if (!atcmd_service_stopped)
 				return;
-					
+
 			StopWaitDevNodeClosedTimer();
 			atcmd_service_stopped = false;
 			mUsbEvent = "usb_devnode_closed";
@@ -837,7 +839,7 @@ public class UsbService extends Service
 		{
 			if (!mtp_service_stopped)
 				return;
-				
+
 			StopWaitDevNodeClosedTimer();
 			mtp_service_stopped = false;
 			mUsbEvent = "usb_devnode_closed";
@@ -862,7 +864,7 @@ public class UsbService extends Service
 	private void sendUsblanDownIntent()
 	{
 		Log.d("UsbService", "sendUsblanDownIntent()");
-		
+
 		if (pending_usblan_intent)
 		{
 			Intent intent = new Intent();
@@ -875,7 +877,7 @@ public class UsbService extends Service
 	private void sendUsblanUpIntent()
 	{
 		Log.d("UsbService", "sendUsblanUpIntent()");
-		
+
 		if (mCurrentUsbMode == USB_MODE_NGP)
 		{
 			Intent intent = new Intent();
@@ -889,9 +891,9 @@ public class UsbService extends Service
 	{
 		Log.d("UsbService", "setUsbConnectionNotificationVisibility()");
 		NotificationManager myNotificationManager = (NotificationManager)getSystemService("notification");
-		
+
 		if (myNotificationManager != null)
-		{      
+		{
 			if (mUsbConnectionNotification == null)
 			{
 				mUsbConnectionNotification = new Notification();
@@ -899,29 +901,29 @@ public class UsbService extends Service
 				mUsbConnectionNotification.when = 0;
 				mUsbConnectionNotification.flags = Notification.FLAG_ONGOING_EVENT;
 			}
-			
+
 			if (forceDefaultSound)
 				mUsbConnectionNotification.defaults = mUsbConnectionNotification.defaults | Notification.DEFAULT_SOUND;
 			else
 				mUsbConnectionNotification.defaults = mUsbConnectionNotification.defaults & (~Notification.DEFAULT_SOUND);
 
-			 
+
 			mUsbConnectionNotification.tickerText = getString(R.string.usb_selection_notification_title);
 			ReadCurrentUsbMode();
-				
+
 			if (mCurrentUsbMode == 3)
 			{
-				mUsbConnectionNotification.setLatestEventInfo(this, getString(R.string.usb_selection_notification_title), 
-																											getString(R.string.usb_selection_notification_message_for_modem), 
+				mUsbConnectionNotification.setLatestEventInfo(this, getString(R.string.usb_selection_notification_title),
+																											getString(R.string.usb_selection_notification_message_for_modem),
 																											createUsbModeSelectionDialogIntent());
 			}
 			else
 			{
-				mUsbConnectionNotification.setLatestEventInfo(this, getString(R.string.usb_selection_notification_title), 
-																											getString(R.string.usb_selection_notification_message), 
-																											createUsbModeSelectionDialogIntent());  
+				mUsbConnectionNotification.setLatestEventInfo(this, getString(R.string.usb_selection_notification_title),
+																											getString(R.string.usb_selection_notification_message),
+																											createUsbModeSelectionDialogIntent());
 			}
-			
+
 			if (visible)
 				myNotificationManager.notify(mUsbConnectionNotification.icon, mUsbConnectionNotification);
 			else
@@ -940,12 +942,12 @@ public class UsbService extends Service
 	{
 		Log.d("UsbService", "setUsbModeFromAtCmd()");
 		Log.d("UsbService", "New mode: " + mUsbModeString[mode]);
-		
+
 		if (mUsbState == USB_STATE_SERVICE_STARTUP)
 		{
 			ReadCurrentUsbMode();
-			if ((mode != mCurrentUsbMode) 
-				&& ((getNGPAvailableFlex()) || (mode != USB_MODE_NGP)) 
+			if ((mode != mCurrentUsbMode)
+				&& ((getNGPAvailableFlex()) || (mode != USB_MODE_NGP))
 				&& ((getModemAvailableFlex()) || (mode != USB_MODE_MODEM)))
 			{
 				mIsSwitchFrom = USB_SWITCH_FROM_AT_CMD;
@@ -960,9 +962,9 @@ public class UsbService extends Service
 	{
 		Log.d("UsbService", "setUsbModeFromUI()");
 		Log.d("UsbService", "New mode: " + mUsbModeString[mode]);
-		
+
 		mNewUsbMode = mode;
-		
+
 		if (mUsbState == USB_STATE_SERVICE_STARTUP)
 		{
 			mIsSwitchFrom = USB_SWITCH_FROM_UI;
@@ -994,9 +996,9 @@ public class UsbService extends Service
 					UsbEventHandler(mUsbEvent);
 				}
 				else
-					mADBStatusChangeMissedNumber = mADBStatusChangeMissedNumber + 1;   	
+					mADBStatusChangeMissedNumber = mADBStatusChangeMissedNumber + 1;
 			}
-			else 
+			else
 				mADBEnabled = enable;
 		}
 	}
@@ -1011,12 +1013,12 @@ public class UsbService extends Service
 			sendBroadcast(new Intent("com.motorola.intent.action.SHOW_USB_CABLE_ATTACH_TOAST"));
 			setUsbConnectionNotificationVisibility(true, true);
 			ReadCurrentUsbMode();
-			
+
 			if (mCurrentUsbMode != 3)
 				enableInternalDataConnectivity(true);
-			else   
+			else
 				enableInternalDataConnectivity(false);
-				
+
 			sendBroadcast(new Intent("com.motorola.intent.action.USB_CABLE_ATTACHED"));
 			emitReconfigurationIntent(true);
 		}
@@ -1030,13 +1032,13 @@ public class UsbService extends Service
 	public void handleStartService(String event)
 	{
 		Log.d("UsbService", "handleStartService(), received event " + event);
-		
+
 		if (mUsbState == USB_STATE_SERVICE_STARTUP)
 		{
 			ReadCurrentUsbMode();
-			if (((event.equals("usbd_start_ngp")) && (mCurrentUsbMode == USB_MODE_NGP)) 
-					|| ((event.equals("usbd_start_mtp")) && (mCurrentUsbMode == USB_MODE_MTP)) 
-					|| ((event.equals("usbd_start_msc_mount")) && (mCurrentUsbMode == USB_MODE_MSC)) 
+			if (((event.equals("usbd_start_ngp")) && (mCurrentUsbMode == USB_MODE_NGP))
+					|| ((event.equals("usbd_start_mtp")) && (mCurrentUsbMode == USB_MODE_MTP))
+					|| ((event.equals("usbd_start_msc_mount")) && (mCurrentUsbMode == USB_MODE_MSC))
 					|| ((event.equals("usbd_start_acm")) && (mCurrentUsbMode == USB_MODE_MODEM)))
 			{
 				mUsbEvent = "usb_start_service";
@@ -1056,7 +1058,7 @@ public class UsbService extends Service
 	public void handleUsbCableDetachment()
 	{
 		Log.d("UsbService", "handleUsbCableDetachment()");
-		
+
 		if (mUsbCableAttached)
 		{
 			mUsbCableAttached = false;
@@ -1065,7 +1067,7 @@ public class UsbService extends Service
 			sendBroadcast(new Intent("com.motorola.intent.action.USB_CABLE_DETACHED"));
 			emitReconfigurationIntent(false);
 		}
-		
+
 		mUsbEvent = "usb_cable_removed";
 		UsbEventHandler(mUsbEvent);
 	}
@@ -1075,14 +1077,14 @@ public class UsbService extends Service
 		Log.d("UsbService", "handleUsbCableEnumerate()");
 		mUsbCableAttached = true;
 		ReadCurrentUsbMode();
-		
+
 		UsbEventHandler("usb_cable_enumerated");
 	}
 
 	public void handleUsbModeSwitchComplete(String event)
 	{
 		Log.d("UsbService", "handleUsbModeSwitchComplete(), received enum event: " + event);
-		
+
 		if (event.equals("usb_mode_ngp:ok") || event.equals("usb_mode_mtp:ok")
 				|| event.equals("usb_mode_msc:ok") || event.equals("usb_mode_modem:ok"))
 		{
@@ -1095,7 +1097,7 @@ public class UsbService extends Service
 			mUsbEvent = "usb_device_enum_fail";
 			UsbEventHandler(mUsbEvent);
 		}
-		else  
+		else
 			Log.d("UsbService", "handleUsbModeSwitchComplete(), Received upexpected event: " + event);
 	}
 
@@ -1103,16 +1105,16 @@ public class UsbService extends Service
 	{
 		Log.d("UsbService", "handleUsbModeSwitchFromUsbd(), received auto switch msg:" + message);
 		int newUsbMode = USB_MODE_MSC;
-		
+
 		if (message.equals("usbd_req_switch_ngp"))
 		{
 			newUsbMode = USB_MODE_NGP;
 			if (mUsbState != USB_STATE_SERVICE_STARTUP)
 				return;
-			
+
 			ReadCurrentUsbMode();
-			
-			if ((!getNGPAvailableFlex() && (newUsbMode == USB_MODE_NGP)) 
+
+			if ((!getNGPAvailableFlex() && (newUsbMode == USB_MODE_NGP))
 					|| (!getModemAvailableFlex() && (newUsbMode == USB_MODE_MODEM)))
 				return;
 		}
@@ -1120,7 +1122,7 @@ public class UsbService extends Service
 		{
 			if (!getMtpAvailableFlex())
 				return;
-			
+
 			newUsbMode = USB_MODE_MTP;
 		}
 		else if (message.equals("usbd_req_switch_msc"))
@@ -1129,7 +1131,7 @@ public class UsbService extends Service
 			newUsbMode = USB_MODE_MODEM;
 		else if (message.equals("usbd_req_switch_none"))
 			newUsbMode = USB_MODE_NONE;
-		
+
 
 		mIsSwitchFrom = USB_SWITCH_FROM_USBD;
 		mNewUsbMode = newUsbMode;
@@ -1146,9 +1148,9 @@ public class UsbService extends Service
 	{
 		Log.d("UsbService", "onCreate()");
 		super.onCreate();
-		
+
 		System.putInt(getContentResolver(), "USB_MODE_FROM_PC", -1);
-		
+
 		IntentFilter intentFilter = new IntentFilter();
 		intentFilter.addAction("com.motorola.intent.action.USB_ATCMD_DEV_CLOSED");
 		intentFilter.addAction("com.motorola.intent.action.USB_MTP_EXIT_OK");
@@ -1159,7 +1161,7 @@ public class UsbService extends Service
 		intentFilter.addAction("com.motorola.intent.action.USB_MODE_SWITCH_FROM_UI");
 		intentFilter.addAction("com.motorola.intent.action.USB_MODE_SWITCH_FROM_ATCMD");
 		registerReceiver(mUsbServiceReceiver, intentFilter);
-		
+
 		IntentFilter mediaIntentFilter = new IntentFilter();
 		mediaIntentFilter.addAction("android.intent.action.MEDIA_UNMOUNTED");
 		mediaIntentFilter.addAction("android.intent.action.MEDIA_MOUNTED");
@@ -1167,9 +1169,9 @@ public class UsbService extends Service
 		mediaIntentFilter.addAction("android.intent.action.MEDIA_UNMOUNTABLE");
 		mediaIntentFilter.addDataScheme("file");
 		registerReceiver(mUsbServiceReceiver, mediaIntentFilter);
-		
+
 		ReadCurrentUsbMode();
-		
+
 		mUsbListener = new UsbListener(this);
 		new Thread(mUsbListener, UsbListener.class.getName()).start();
 		mUEventObserver.startObserving("DEVPATH=/devices/virtual/misc/usbnet_enable");

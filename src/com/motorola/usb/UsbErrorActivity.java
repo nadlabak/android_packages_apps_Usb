@@ -55,20 +55,20 @@ public class UsbErrorActivity extends AlertActivity
 	protected void onCreate(Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
-		
+
 		IntentFilter intentFilter = new IntentFilter();
 		intentFilter.addAction("com.motorola.intent.action.USB_CABLE_DETACHED");
-		
+
 		registerReceiver(mUsbErrorReceiver, intentFilter);
-		
+
 		mAlertParams.mIconId = com.android.internal.R.drawable.ic_dialog_usb;
 		mAlertParams.mTitle = getString(R.string.usb_connection);
-		
-		
-		mAlertParams.mMessage = getString(R.string.usb_error_message) + " " + 
-														getIntent().getStringExtra("USB_MODE_STRING") + 
+
+
+		mAlertParams.mMessage = getString(R.string.usb_error_message) + " " +
+														getIntent().getStringExtra("USB_MODE_STRING") +
 														getString(R.string.usb_period);
-		
+
 		mAlertParams.mPositiveButtonText = getString(R.string.usb_ok);
 		mAlertParams.mPositiveButtonListener = this;
 		setupAlert();

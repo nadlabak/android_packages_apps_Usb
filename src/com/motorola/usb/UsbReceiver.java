@@ -30,9 +30,9 @@ public class UsbReceiver extends BroadcastReceiver
 		String action = intent.getAction();
 
 		Log.d("UsbReceiver", "onReceive(), received intent -- " + action);
-		
+
 		if (action.equals("android.intent.action.BOOT_COMPLETED"))
 			context.startService( new Intent("com.motorola.intent.action.USB_LAUNCH_USBSERVICE"));
-		
+
 	}
 }

@@ -41,7 +41,7 @@ public final class UsbListener
 		Log.d("UsbListener", "handleEvent: " + event);
 		if (event.length() == 0)
 			Log.d("UsbListener", "discard invalid event from USBD");
-			
+
 		if (event.equals("cable_connected"))
 			mUsbService.handleUsbCableAttachment();
 		else if (event.equals("usb_enumerated"))
@@ -65,30 +65,30 @@ public final class UsbListener
 	}
 
 	private void listenToSocket()
-	{ 
+	{
 		LocalSocket usbdScoket = null;
-	 
+
 		try
 		{
 			usbdScoket = new LocalSocket();
 			LocalSocketAddress.Namespace fsNamespace = LocalSocketAddress.Namespace.FILESYSTEM;
 			LocalSocketAddress socketAddress = new LocalSocketAddress("/dev/socket/usbd", fsNamespace);
 			usbdScoket.connect(socketAddress);
-		
+
 			InputStream usbdInputStream = usbdScoket.getInputStream();
 			mOutputStream = usbdScoket.getOutputStream();
-		
+
 			byte[] buffer = new byte[100];
-		
+
 			while (true)
 			{
 				int count = usbdInputStream.read(buffer);
-		
+
 				if (count >= 0)
 				{
 					int i = 0;
 					int k = 0;
-			
+
 					while (i < count)
 					{
 						if (buffer[i] == 0)
@@ -96,20 +96,20 @@ public final class UsbListener
 							handleEvent(new String(buffer, k, i - k));
 							k = i + 1;
 						}
-						
-						i = i + 1; 
+
+						i = i + 1;
 					}
 				}
 				else
 					break; //failure
 			}
-		
+
 		}
 		catch (IOException ex)
 		{
 			Log.e("UsbListener", "IOException, connect/read socket");
 		}
-		
+
 		//clean up
 		synchronized(this)
 		{
@@ -122,11 +122,11 @@ public final class UsbListener
 				catch (IOException ex)
 				{
 					Log.w("UsbListener", "IOException closing output stream");
-				}	
-					
+				}
+
 				mOutputStream = null;
 			}
-		
+
 			if (usbdScoket != null)
 			{
 				try
@@ -138,7 +138,7 @@ public final class UsbListener
 					Log.w("UsbListener", "IOException closing socket");
 				}
 			}
-					
+
 			Log.e("UsbListener", "Failed to connect to usbd", new IllegalStateException());
 			SystemClock.sleep(2000);
 		}
@@ -153,10 +153,10 @@ public final class UsbListener
 		}
 
 		String line = cmd;
-		
+
 		if (arg != null)
 			line = cmd + arg + "\0";
-		else 
+		else
 			line = cmd + "\0";
 
 		try

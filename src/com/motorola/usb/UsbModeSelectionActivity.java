@@ -38,22 +38,22 @@ public class UsbModeSelectionActivity extends AlertActivity
 {
 	private final int NO_ITEM = -1;
 	private int currentUsbModeIndex;
-	
+
 	private boolean isModemAvailable = true;
 	private boolean isNGPAvailable = true;
 	private boolean isMtpAvailable = true;
-	
+
 	private String[] tmpArray;
 	private int[] modeAtPosition = new int[]{ -1, -1, -1, -1, -1 };
 	private int previousUsbModeIndex;
-	
+
 
 	private DialogInterface.OnClickListener mUsbClickListener;
 	private BroadcastReceiver mUsbModeSwitchReceiver;
 
 	public UsbModeSelectionActivity()
 	{
-		
+
 		mUsbModeSwitchReceiver = new BroadcastReceiver()
 		{
 			public void onReceive(Context context, Intent intent)
@@ -64,7 +64,7 @@ public class UsbModeSelectionActivity extends AlertActivity
 					finish();
 			}
 		};
-		
+
 		mUsbClickListener = new DialogInterface.OnClickListener()
 		{
 			public void onClick(DialogInterface dialog, int which)
@@ -78,11 +78,11 @@ public class UsbModeSelectionActivity extends AlertActivity
 	private void ReadPreviousUsbMode()
 	{
 		Log.d("UsbModeSelectionActivity", "ReadPreviousUsbMode()");
-		
+
 		try
-		{ 
+		{
 			int modeFromPC = System.getInt(getContentResolver(), "USB_MODE_FROM_PC");
-					 
+
 			if ( modeFromPC == -1)
 			{
 				try
@@ -115,7 +115,7 @@ public class UsbModeSelectionActivity extends AlertActivity
 	private boolean getModemAvailableFlex()
 	{
 		String str;
-		
+
 		if (TelephonyManager.getDefault().getPhoneType() == 1)
 		{
 			Log.d("UsbModeSelectionActivity", "umts phone");
@@ -126,14 +126,14 @@ public class UsbModeSelectionActivity extends AlertActivity
 			Log.d("UsbModeSelectionActivity", "cdma phone");
 			str = SystemProperties.get("ro.modem_available", "1");
 		}
-		
+
 		return str.equals("1");
 	}
 
 	private boolean getNGPAvailableFlex()
 	{
 		String str;
-		
+
 		if (TelephonyManager.getDefault().getPhoneType() == 1)
 		{
 			Log.d("UsbModeSelectionActivity", "umts phone");
@@ -144,10 +144,10 @@ public class UsbModeSelectionActivity extends AlertActivity
 			Log.d("UsbModeSelectionActivity", "cdma phone");
 			str = SystemProperties.get("ro.ngp_available", "0");
 		}
-		
+
 		return str.equals("1");
 	}
-	
+
 	private boolean getMtpAvailableFlex()
 	{
 		return SystemProperties.get("ro.mtp_available", "1").equals("1");
@@ -156,7 +156,7 @@ public class UsbModeSelectionActivity extends AlertActivity
 	private int getPositionFromMode(int mode)
 	{
 		int i = 0;
-		
+
 		while (true)
 		{
 			if (i < 5)
@@ -167,15 +167,15 @@ public class UsbModeSelectionActivity extends AlertActivity
 			}
 			else
 				return i;
-				
+
 			i = i + 1;
 		}
 	}
 
 	public void onClick(DialogInterface dialog, int which)
-	{        
+	{
 		Log.d("UsbModeSelectionActivity", "onClick() --  " + String.valueOf(which));
-		
+
 		if (which == -1 )
 		{
 			if (currentUsbModeIndex != previousUsbModeIndex)
@@ -190,59 +190,59 @@ public class UsbModeSelectionActivity extends AlertActivity
 	protected void onCreate(Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
-		
+
 		Log.d("UsbModeSelectionActivity", "onCreate()");
-		
+
 		isNGPAvailable = getNGPAvailableFlex();
 		isModemAvailable = getModemAvailableFlex();
 		isMtpAvailable = getMtpAvailableFlex();
 
 		int len = 2;
-		
+
 		if (isNGPAvailable)
 			len = len + 1;
 
 		if (isModemAvailable)
 			len = len + 1;
-			
+
 		if (isMtpAvailable)
 			len = len + 1;
 
 		tmpArray = new String[len];
-		
+
 		int j = 0;
-		
+
 		if (isNGPAvailable)
 		{
 			tmpArray[j] = getString(R.string.usb_mode_ngp);
 			modeAtPosition[j] = UsbService.USB_MODE_NGP;
 			j = j + 1;
 		}
-		
+
 		if (isMtpAvailable)
 		{
 			tmpArray[j] = getString(R.string.usb_mode_mtp);
 			modeAtPosition[j] = UsbService.USB_MODE_MTP;
 			j = j + 1;
 		}
-		
+
 		tmpArray[j] = getString(R.string.usb_mode_msc);
 		modeAtPosition[j] = UsbService.USB_MODE_MSC;
 		j = j + 1;
-		
+
 		if (isModemAvailable)
 		{
 			tmpArray[j] = getString(R.string.usb_mode_modem);
 			modeAtPosition[j] = UsbService.USB_MODE_MODEM;
 			j = j + 1;
 		}
-		
+
 		tmpArray[j] = getString(R.string.usb_mode_none);
 		modeAtPosition[j] = UsbService.USB_MODE_NONE;
 		j = j + 1;
-		
+
 		ReadPreviousUsbMode();
-		
+
 		currentUsbModeIndex = previousUsbModeIndex;
 		mAlertParams.mIconId = com.android.internal.R.drawable.ic_dialog_usb;
 		mAlertParams.mTitle = getString(R.string.usb_connection);
@@ -254,9 +254,9 @@ public class UsbModeSelectionActivity extends AlertActivity
 		mAlertParams.mPositiveButtonListener = this;
 		mAlertParams.mNegativeButtonText = getString(R.string.usb_cancel);
 		mAlertParams.mNegativeButtonListener = this;
-		
+
 		setupAlert();
-		
+
 		registerReceiver(mUsbModeSwitchReceiver, new IntentFilter("com.motorola.intent.action.USB_CABLE_DETACHED"));
 	}
 
