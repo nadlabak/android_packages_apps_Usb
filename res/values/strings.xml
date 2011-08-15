@@ -16,6 +16,7 @@
     <string name="usb_mode_ngp">Portal &amp; Tools</string>
     <string name="usb_mode_mtp">Windows Media Sync</string>
     <string name="usb_mode_msc">Memory Card Access</string>
+    <string name="usb_mode_rndis">USB Networking</string>
     <string name="usb_mode_modem">Phone as Modem</string>
     <string name="usb_mode_none">Charge Only</string>
     <string name="usb_toast_insert_card">Please insert a memory card for your media.</string>

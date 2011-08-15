@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2011 Skrilax_CZ
- * Decompilation of Motorola Usb.apk
+ * Based on Motorola Usb.apk
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -56,27 +56,31 @@ public final class UsbListener
 			mUsbService.handleADBOnOff(true);
 		else if (event.equals("usbd_adb_status_off"))
 			mUsbService.handleADBOnOff(false);
-		else if ((event.equals("usbd_start_ngp")) || (event.equals("usbd_start_mtp")) || (event.equals("usbd_start_msc_mount")) || (event.equals("usbd_start_acm")))
+		else if ( event.equals("usbd_start_ngp") || event.equals("usbd_start_mtp") || event.equals("usbd_start_msc_mount") ||
+			 event.equals("usbd_start_acm") || event.equals("usbd_start_modem") || event.equals("usbd_start_rndis") )
 			mUsbService.handleStartService(event);
-		else if ((event.equals("usbd_req_switch_ngp")) || (event.equals("usbd_req_switch_mtp")) || (event.equals("usbd_req_switch_msc")) || (event.equals("usbd_req_switch_modem")))
+		else if ( event.equals("usbd_req_switch_ngp") || event.equals("usbd_req_switch_mtp") || event.equals("usbd_req_switch_msc") ||
+			 event.equals("usbd_req_switch_modem") || event.equals("usbd_req_switch_rndis") )
 			mUsbService.handleUsbModeSwitchFromUsbd(event);
-		else
+		else {
+			Log.i("UsbListener", "Assuming mode switch completed");
 			mUsbService.handleUsbModeSwitchComplete(event);
+		}
 	}
 
 	private void listenToSocket()
 	{
-		LocalSocket usbdScoket = null;
+		LocalSocket usbdSocket = null;
 
 		try
 		{
-			usbdScoket = new LocalSocket();
+			usbdSocket = new LocalSocket();
 			LocalSocketAddress.Namespace fsNamespace = LocalSocketAddress.Namespace.FILESYSTEM;
 			LocalSocketAddress socketAddress = new LocalSocketAddress("/dev/socket/usbd", fsNamespace);
-			usbdScoket.connect(socketAddress);
+			usbdSocket.connect(socketAddress);
 
-			InputStream usbdInputStream = usbdScoket.getInputStream();
-			mOutputStream = usbdScoket.getOutputStream();
+			InputStream usbdInputStream = usbdSocket.getInputStream();
+			mOutputStream = usbdSocket.getOutputStream();
 
 			byte[] buffer = new byte[100];
 
@@ -127,11 +131,11 @@ public final class UsbListener
 				mOutputStream = null;
 			}
 
-			if (usbdScoket != null)
+			if (usbdSocket != null)
 			{
 				try
 				{
-					usbdScoket.close();
+					usbdSocket.close();
 				}
 				catch(IOException ex)
 				{

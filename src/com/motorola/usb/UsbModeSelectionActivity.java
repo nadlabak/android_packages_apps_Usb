@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2011 Skrilax_CZ
- * Decompilation of Motorola Usb.apk
+ * Based on Motorola Usb.apk
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,16 +37,16 @@ public class UsbModeSelectionActivity extends AlertActivity
 	implements DialogInterface.OnClickListener
 {
 	private final int NO_ITEM = -1;
-	private int currentUsbModeIndex;
 
 	private boolean isModemAvailable = true;
 	private boolean isNGPAvailable = true;
 	private boolean isMtpAvailable = true;
+	private boolean isRndisAvailable = true;
 
 	private String[] tmpArray;
-	private int[] modeAtPosition = new int[]{ -1, -1, -1, -1, -1 };
+	private int[] modeAtPosition = new int[]{ -1, -1, -1, -1, -1 , -1, -1 };
+	private int currentUsbModeIndex;
 	private int previousUsbModeIndex;
-
 
 	private DialogInterface.OnClickListener mUsbClickListener;
 	private BroadcastReceiver mUsbModeSwitchReceiver;
@@ -69,16 +69,14 @@ public class UsbModeSelectionActivity extends AlertActivity
 		{
 			public void onClick(DialogInterface dialog, int which)
 			{
-				Log.d("UsbModeSelectionActivity", "onClick() --  " + String.valueOf(which));
 				currentUsbModeIndex = modeAtPosition[which];
+				Log.d("UsbModeSelectionActivity", "onClick() -- " + String.valueOf(which) + "->" + String.valueOf(currentUsbModeIndex));
 			}
 		};
 	}
 
 	private void ReadPreviousUsbMode()
 	{
-		Log.d("UsbModeSelectionActivity", "ReadPreviousUsbMode()");
-
 		try
 		{
 			int modeFromPC = System.getInt(getContentResolver(), "USB_MODE_FROM_PC");
@@ -91,6 +89,7 @@ public class UsbModeSelectionActivity extends AlertActivity
 				}
 				catch (SettingNotFoundException ex)
 				{
+					Log.w("UsbModeSelectionActivity", "ReadPreviousUsbMode()", ex);
 					previousUsbModeIndex = SystemProperties.getInt("ro.default_usb_mode", 0);
 					System.putInt(getContentResolver(), "USB_SETTING", previousUsbModeIndex);
 				}
@@ -100,51 +99,49 @@ public class UsbModeSelectionActivity extends AlertActivity
 		}
 		catch (SettingNotFoundException ex)
 		{
+			Log.w("UsbModeSelectionActivity", "ReadPreviousUsbMode()", ex);
 			try
 			{
 				previousUsbModeIndex = System.getInt(getContentResolver(), "USB_SETTING");
 			}
 			catch (SettingNotFoundException ex2)
 			{
+				Log.w("UsbModeSelectionActivity", "ReadPreviousUsbMode()", ex2);
 				previousUsbModeIndex = SystemProperties.getInt("ro.default_usb_mode", 0);
 				System.putInt(getContentResolver(), "USB_SETTING", previousUsbModeIndex);
 			}
 		}
+		Log.d("UsbModeSelectionActivity", "ReadPreviousUsbMode() = " + String.valueOf(previousUsbModeIndex));
 	}
 
 	private boolean getModemAvailableFlex()
 	{
+		return SystemProperties.get("ro.modem_available", "1").equals("1");
+		/*
 		String str;
-
 		if (TelephonyManager.getDefault().getPhoneType() == 1)
 		{
 			Log.d("UsbModeSelectionActivity", "umts phone");
 			str = SystemProperties.get("ro.modem_available", "0");
-		}
-		else
-		{
+		} else {
 			Log.d("UsbModeSelectionActivity", "cdma phone");
 			str = SystemProperties.get("ro.modem_available", "1");
 		}
-
 		return str.equals("1");
+		*/
 	}
 
 	private boolean getNGPAvailableFlex()
 	{
 		String str;
-
 		if (TelephonyManager.getDefault().getPhoneType() == 1)
 		{
 			Log.d("UsbModeSelectionActivity", "umts phone");
 			str = SystemProperties.get("ro.ngp_available", "1");
-		}
-		else
-		{
+		} else {
 			Log.d("UsbModeSelectionActivity", "cdma phone");
 			str = SystemProperties.get("ro.ngp_available", "0");
 		}
-
 		return str.equals("1");
 	}
 
@@ -153,23 +150,23 @@ public class UsbModeSelectionActivity extends AlertActivity
 		return SystemProperties.get("ro.mtp_available", "1").equals("1");
 	}
 
+	private boolean getRndisAvailableFlex()
+	{
+		return SystemProperties.get("ro.rndis_available", "1").equals("1");
+	}
+
 	private int getPositionFromMode(int mode)
 	{
+		Log.d("UsbModeSelectionActivity", "getPositionFromMode() --  " + String.valueOf(mode));
+
 		int i = 0;
-
-		while (true)
+		while (i <= UsbService.USB_MODE_NONE)
 		{
-			if (i < 5)
-			{
-				int j = modeAtPosition[i];
-				if (j == mode)
-					return i;
-			}
-			else
+			if (modeAtPosition[i] == mode)
 				return i;
-
 			i = i + 1;
 		}
+		return previousUsbModeIndex;
 	}
 
 	public void onClick(DialogInterface dialog, int which)
@@ -196,16 +193,17 @@ public class UsbModeSelectionActivity extends AlertActivity
 		isNGPAvailable = getNGPAvailableFlex();
 		isModemAvailable = getModemAvailableFlex();
 		isMtpAvailable = getMtpAvailableFlex();
+		isRndisAvailable = getRndisAvailableFlex();
 
 		int len = 2;
 
 		if (isNGPAvailable)
 			len = len + 1;
-
-		if (isModemAvailable)
-			len = len + 1;
-
 		if (isMtpAvailable)
+			len = len + 1;
+		if (isRndisAvailable)
+			len = len + 1;
+		if (isModemAvailable)
 			len = len + 1;
 
 		tmpArray = new String[len];
@@ -226,9 +224,19 @@ public class UsbModeSelectionActivity extends AlertActivity
 			j = j + 1;
 		}
 
-		tmpArray[j] = getString(R.string.usb_mode_msc);
-		modeAtPosition[j] = UsbService.USB_MODE_MSC;
-		j = j + 1;
+		if (true)
+		{
+			tmpArray[j] = getString(R.string.usb_mode_msc);
+			modeAtPosition[j] = UsbService.USB_MODE_MSC;
+			j = j + 1;
+		}
+
+		if (isRndisAvailable)
+		{
+			tmpArray[j] = getString(R.string.usb_mode_rndis);
+			modeAtPosition[j] = UsbService.USB_MODE_RNDIS;
+			j = j + 1;
+		}
 
 		if (isModemAvailable)
 		{
@@ -237,9 +245,12 @@ public class UsbModeSelectionActivity extends AlertActivity
 			j = j + 1;
 		}
 
-		tmpArray[j] = getString(R.string.usb_mode_none);
-		modeAtPosition[j] = UsbService.USB_MODE_NONE;
-		j = j + 1;
+		if (true)
+		{
+			tmpArray[j] = getString(R.string.usb_mode_none);
+			modeAtPosition[j] = UsbService.USB_MODE_NONE;
+			j = j + 1;
+		}
 
 		ReadPreviousUsbMode();
 

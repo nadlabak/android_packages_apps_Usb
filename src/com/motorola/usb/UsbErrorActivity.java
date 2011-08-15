@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2011 Skrilax_CZ
- * Decompilation of Motorola Usb.apk
+ * Based on Motorola Usb.apk
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -66,8 +66,8 @@ public class UsbErrorActivity extends AlertActivity
 
 
 		mAlertParams.mMessage = getString(R.string.usb_error_message) + " " +
-														getIntent().getStringExtra("USB_MODE_STRING") +
-														getString(R.string.usb_period);
+			getIntent().getStringExtra("USB_MODE_STRING") +
+			getString(R.string.usb_period);
 
 		mAlertParams.mPositiveButtonText = getString(R.string.usb_ok);
 		mAlertParams.mPositiveButtonListener = this;

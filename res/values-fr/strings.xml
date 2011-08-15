@@ -16,6 +16,7 @@
     <string name="usb_mode_ngp">Portail &amp; outils</string>
     <string name="usb_mode_mtp">Synchronisation Windows Media</string>
     <string name="usb_mode_msc">Accès à la carte mémoire</string>
+    <string name="usb_mode_rndis">Réseau USB</string>
     <string name="usb_mode_modem">Téléphone en tant que modem</string>
     <string name="usb_mode_none">Chargement uniquement</string>
     <string name="usb_toast_insert_card">Veuillez insérer une carte mémoire où stocker vos médias.</string>

@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2011 Skrilax_CZ
- * Decompilation of Motorola Usb.apk
+ * Based on Motorola Usb.apk
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,6 +33,6 @@ public class UsbReceiver extends BroadcastReceiver
 
 		if (action.equals("android.intent.action.BOOT_COMPLETED"))
 			context.startService( new Intent("com.motorola.intent.action.USB_LAUNCH_USBSERVICE"));
-
 	}
 }
+
