@@ -247,6 +247,11 @@ public class UsbService extends Service
 						setUsbModeFromAtCmd(index);
 					}
 				}
+				else if (action.equals("com.motorola.intent.action.USB_TETHERING_TOGGLED"))
+				{
+					int state = intent.getIntExtra("state", 0);
+					handleUsbTetheringToggled(state != 0);
+				}
 			}
 		};
 
@@ -736,7 +741,9 @@ public class UsbService extends Service
 	private PendingIntent createUsbModeSelectionDialogIntent()
 	{
 		Intent myIntent = new Intent();
-		myIntent.setClass(this, UsbModeSelectionActivity.class);
+		if (mCurrentUsbMode != USB_MODE_RNDIS) {
+			myIntent.setClass(this, UsbModeSelectionActivity.class);
+		}
 		return PendingIntent.getActivity(this, 0, myIntent, 0);
 	}
 
@@ -1263,6 +1270,22 @@ public class UsbService extends Service
 		UsbEventHandler(mUsbEvent);
 	}
 
+	private void handleUsbTetheringToggled(boolean enabled) {
+
+		if (enabled) {
+			mNewUsbMode = USB_MODE_RNDIS;
+			mIsSwitchFrom = USB_SWITCH_FROM_USBD;
+		} else {
+			System.putInt(getContentResolver(), "USB_MODE_FROM_PC", -1);
+			ReadCurrentUsbMode();
+			mNewUsbMode = mCurrentUsbMode;
+			mIsSwitchFrom = USB_SWITCH_FROM_UI;
+		}
+
+		mUsbEvent = "usb_switch_from_usbd";
+		UsbEventHandler(mUsbEvent);
+	}
+
 	public IBinder onBind(Intent paramIntent)
 	{
 		return null;
@@ -1289,6 +1312,7 @@ public class UsbService extends Service
 		intentFilter.addAction("com.motorola.intent.action.SHOW_USB_MODE_SWITCH_TOAST");
 		intentFilter.addAction("com.motorola.intent.action.USB_MODE_SWITCH_FROM_UI");
 		intentFilter.addAction("com.motorola.intent.action.USB_MODE_SWITCH_FROM_ATCMD");
+		intentFilter.addAction("com.motorola.intent.action.USB_TETHERING_TOGGLED");
 		registerReceiver(mUsbServiceReceiver, intentFilter);
 
 		IntentFilter mediaIntentFilter = new IntentFilter();

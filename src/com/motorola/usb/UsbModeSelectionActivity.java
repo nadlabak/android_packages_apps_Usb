@@ -152,7 +152,8 @@ public class UsbModeSelectionActivity extends AlertActivity
 
 	private boolean getRndisAvailableFlex()
 	{
-		return SystemProperties.get("ro.rndis_available", "1").equals("1");
+		/* Don't offer RNDIS, it's enabled via the tethering options */
+		return false;
 	}
 
 	private int getPositionFromMode(int mode)
