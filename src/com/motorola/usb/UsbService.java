@@ -741,9 +741,7 @@ public class UsbService extends Service
 	private PendingIntent createUsbModeSelectionDialogIntent()
 	{
 		Intent myIntent = new Intent();
-		if (mCurrentUsbMode != USB_MODE_RNDIS) {
-			myIntent.setClass(this, UsbModeSelectionActivity.class);
-		}
+		myIntent.setClass(this, UsbModeSelectionActivity.class);
 		return PendingIntent.getActivity(this, 0, myIntent, 0);
 	}
 

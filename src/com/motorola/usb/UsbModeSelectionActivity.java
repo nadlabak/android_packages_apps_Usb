@@ -24,12 +24,14 @@ import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.os.SystemProperties;
 import android.provider.Settings.SettingNotFoundException;
 import android.provider.Settings.System;
 import android.telephony.TelephonyManager;
 import android.util.Log;
+import android.widget.Toast;
 import com.android.internal.app.AlertActivity;
 import com.android.internal.app.AlertController.AlertParams;
 
@@ -186,11 +188,31 @@ public class UsbModeSelectionActivity extends AlertActivity
 		}
 	}
 
+	private boolean isUsbTethered() {
+		ConnectivityManager cm = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
+		String[] tetheredIfaces = cm.getTetheredIfaces();
+		String[] tetherableRegexs = cm.getTetherableUsbRegexs();
+
+		for (String iface : tetheredIfaces) {
+			for (String regex : tetherableRegexs) {
+				if (iface.matches(regex)) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
 	protected void onCreate(Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
 
 		Log.d("UsbModeSelectionActivity", "onCreate()");
+
+		if (isUsbTethered()) {
+			Toast.makeText(this, R.string.usb_tethered_message, Toast.LENGTH_LONG).show();
+			finish();
+		}
 
 		isNGPAvailable = getNGPAvailableFlex();
 		isModemAvailable = getModemAvailableFlex();
