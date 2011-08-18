@@ -19,7 +19,6 @@ package com.motorola.usb;
 
 import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
@@ -28,15 +27,10 @@ import android.content.IntentFilter;
 import android.content.res.Resources;
 import android.net.ConnectivityManager;
 import android.os.Bundle;
-import android.os.SystemProperties;
-import android.provider.Settings.SettingNotFoundException;
-import android.provider.Settings.System;
-import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.widget.Toast;
 
 import com.android.internal.app.AlertActivity;
-import com.android.internal.app.AlertController.AlertParams;
 
 public class UsbModeSelectionActivity extends AlertActivity 
         implements DialogInterface.OnClickListener
@@ -69,34 +63,6 @@ public class UsbModeSelectionActivity extends AlertActivity
                 Log.d(TAG, "onClick() -- " + which + "->" + currentUsbModeIndex);
             }
         };
-    }
-
-    private void ReadPreviousUsbMode() {
-        try {
-            int modeFromPC = System.getInt(getContentResolver(), "USB_MODE_FROM_PC");
-
-            if ( modeFromPC == -1) {
-                try {
-                    previousUsbModeIndex = System.getInt(getContentResolver(), "USB_SETTING");
-                } catch (SettingNotFoundException ex) {
-                    Log.w(TAG, "ReadPreviousUsbMode()", ex);
-                    previousUsbModeIndex = SystemProperties.getInt("ro.default_usb_mode", 0);
-                    System.putInt(getContentResolver(), "USB_SETTING", previousUsbModeIndex);
-                }
-            } else {
-                previousUsbModeIndex = modeFromPC;
-            }
-        } catch (SettingNotFoundException ex) {
-            Log.w(TAG, "ReadPreviousUsbMode()", ex);
-            try {
-                previousUsbModeIndex = System.getInt(getContentResolver(), "USB_SETTING");
-            } catch (SettingNotFoundException ex2) {
-                Log.w(TAG, "ReadPreviousUsbMode()", ex2);
-                previousUsbModeIndex = SystemProperties.getInt("ro.default_usb_mode", 0);
-                System.putInt(getContentResolver(), "USB_SETTING", previousUsbModeIndex);
-            }
-        }
-        Log.d(TAG, "ReadPreviousUsbMode() = " + String.valueOf(previousUsbModeIndex));
     }
 
     private int getPositionFromMode(int mode) {
@@ -153,7 +119,7 @@ public class UsbModeSelectionActivity extends AlertActivity
         mModeEntries = res.getStringArray(R.array.usb_mode_entries);
         mModeValues = res.getIntArray(R.array.usb_mode_values);
 
-        ReadPreviousUsbMode();
+        previousUsbModeIndex = UsbSettings.readCurrentMode(this);
         currentUsbModeIndex = previousUsbModeIndex;
 
         mAlertParams.mIconId = com.android.internal.R.drawable.ic_dialog_usb;

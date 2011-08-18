@@ -26,7 +26,6 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.util.Log;
 import com.android.internal.app.AlertActivity;
-import com.android.internal.app.AlertController.AlertParams;
 
 public class UsbErrorActivity extends AlertActivity
         implements DialogInterface.OnClickListener

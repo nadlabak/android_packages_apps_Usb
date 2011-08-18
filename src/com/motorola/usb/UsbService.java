@@ -22,8 +22,6 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.BroadcastReceiver;
-import android.content.ComponentName;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -32,13 +30,9 @@ import android.os.IBinder;
 import android.os.RemoteException;
 import android.os.ServiceManager;
 import android.os.SystemClock;
-import android.os.SystemProperties;
 import android.os.UEventObserver;
 import android.os.storage.IMountService;
 import android.os.storage.IMountService.Stub;
-import android.provider.Settings.SettingNotFoundException;
-import android.provider.Settings.System;
-import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -203,10 +197,6 @@ public class UsbService extends Service
     private boolean mUsbCableAttached = false;
     private boolean mADBEnabled = false;
 
-    private boolean isModemAvailable = true;
-    private boolean isNGPAvailable = true;
-    private boolean isMtpAvailable = true;
-
     private int mADBStatusChangeMissedNumber = 0;
 
     private boolean mMediaMountedReceiverRegistered = false;
@@ -370,32 +360,7 @@ public class UsbService extends Service
     }
 
     private void ReadCurrentUsbMode() {
-        try {
-            int modeFromPC = System.getInt(getContentResolver(), "USB_MODE_FROM_PC");
-
-            if (modeFromPC == -1) {
-                try {
-                    mCurrentUsbMode = System.getInt(getContentResolver(), "USB_SETTING");
-                    Log.d(TAG, "Current Usb Mode: " + getUsbModeString(mCurrentUsbMode));
-                } catch (SettingNotFoundException ex) {
-                    mCurrentUsbMode = SystemProperties.getInt("ro.default_usb_mode", 0);
-                    Log.d(TAG, "read usb setting exception");
-                    System.putInt(getContentResolver(), "USB_SETTING", mCurrentUsbMode);
-                }
-            } else {
-                mCurrentUsbMode = modeFromPC;
-                Log.d(TAG, "Current Usb Mode: " + getUsbModeString(mCurrentUsbMode));
-            }
-        } catch (SettingNotFoundException ex) {
-            try {
-                mCurrentUsbMode = System.getInt(getContentResolver(), "USB_SETTING");
-                Log.d(TAG, "Current Usb Mode: " + getUsbModeString(mCurrentUsbMode));
-            } catch (SettingNotFoundException ex2) {
-                mCurrentUsbMode = SystemProperties.getInt("ro.default_usb_mode", 0);
-                Log.w(TAG, "read usb setting exception", ex2);
-                System.putInt(getContentResolver(), "USB_SETTING", mCurrentUsbMode);
-            }
-        }
+        mCurrentUsbMode = UsbSettings.readCurrentMode(this);
     }
 
     private void StartAtCmdService() {
@@ -502,9 +467,9 @@ public class UsbService extends Service
                     if (mIsSwitchFrom == USB_SWITCH_FROM_UI) {
                         WriteNewUsbMode(mNewUsbMode);
                         UsbModeSwitchSuccess();
-                        System.putInt(getContentResolver(), "USB_MODE_FROM_PC", -1);
-                    } else if(mIsSwitchFrom == USB_SWITCH_FROM_USBD || mIsSwitchFrom == USB_SWITCH_FROM_AT_CMD) {
-                        System.putInt(getContentResolver(), "USB_MODE_FROM_PC", mNewUsbMode);
+                        UsbSettings.writeMode(this, -1, false);
+                    } else if (mIsSwitchFrom == USB_SWITCH_FROM_USBD || mIsSwitchFrom == USB_SWITCH_FROM_AT_CMD) {
+                        UsbSettings.writeMode(this, mNewUsbMode, false);
                     }
 
                     ReadCurrentUsbMode();
@@ -645,9 +610,9 @@ public class UsbService extends Service
         UsbEventHandler(EVENT_DEVNODE_CLOSED);
     }
 
-    private void WriteNewUsbMode(int paramInt) {
-        Log.d(TAG, "WriteNewUsbMode(), New Usb Mode: " + String.valueOf(paramInt));
-        System.putInt(getContentResolver(), "USB_SETTING", paramInt);
+    private void WriteNewUsbMode(int mode) {
+        Log.d(TAG, "WriteNewUsbMode(), New Usb Mode: " + mode);
+        UsbSettings.writeMode(this, mode, true);
     }
 
     private PendingIntent createUsbModeSelectionDialogIntent() {
@@ -866,9 +831,7 @@ public class UsbService extends Service
 
         if (mUsbState == USB_STATE_SERVICE_STARTUP) {
             ReadCurrentUsbMode();
-            if ((mode != mCurrentUsbMode)
-                    && (isNGPAvailable || (mode != USB_MODE_NGP))
-                    && (isModemAvailable || (mode != USB_MODE_MODEM))) {
+            if (mode != mCurrentUsbMode) {
                 mIsSwitchFrom = USB_SWITCH_FROM_AT_CMD;
                 mNewUsbMode = mode;
                 UsbEventHandler(EVENT_SWITCH);
@@ -969,7 +932,7 @@ public class UsbService extends Service
 
     public void handleUsbCableAttachment() {
         Log.d(TAG, "handleUsbCableAttachment()");
-        System.putInt(getContentResolver(), "USB_MODE_FROM_PC", -1);
+        UsbSettings.writeMode(this, -1, false);
         UsbEventHandler(EVENT_CABLE_INSERTED);
     }
 
@@ -1018,15 +981,7 @@ public class UsbService extends Service
             }
 
             ReadCurrentUsbMode();
-
-            if ((!isNGPAvailable && (newUsbMode == USB_MODE_NGP))
-                    || (!isModemAvailable && (newUsbMode == USB_MODE_MODEM))) {
-                return;
-                    }
         } else if (message.equals(UsbListener.EVENT_REQ_MTP)) {
-            if (!isMtpAvailable) {
-                return;
-            }
             newUsbMode = USB_MODE_MTP;
         } else if (message.equals(UsbListener.EVENT_REQ_MSC)) {
             newUsbMode = USB_MODE_MSC;
@@ -1048,7 +1003,7 @@ public class UsbService extends Service
             mNewUsbMode = USB_MODE_RNDIS;
             mIsSwitchFrom = USB_SWITCH_FROM_USBD;
         } else {
-            System.putInt(getContentResolver(), "USB_MODE_FROM_PC", -1);
+            UsbSettings.writeMode(this, -1, false);
             ReadCurrentUsbMode();
             mNewUsbMode = mCurrentUsbMode;
             mIsSwitchFrom = USB_SWITCH_FROM_UI;
@@ -1065,12 +1020,7 @@ public class UsbService extends Service
         Log.d(TAG, "onCreate()");
         super.onCreate();
 
-        // This is not really required in Service, Hided in Layer
-        isNGPAvailable = true; //getNGPAvailableFlex();
-        isMtpAvailable = true; //getMtpAvailableFlex();
-        isModemAvailable = true; //getModemAvailableFlex();
-
-        System.putInt(getContentResolver(), "USB_MODE_FROM_PC", -1);
+        UsbSettings.writeMode(this, -1, false);
 
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(ACTION_ATCMD_CLOSED);
