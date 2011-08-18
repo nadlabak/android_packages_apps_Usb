@@ -190,16 +190,18 @@ public class UsbService extends Service
     private static final int EVENT_DEVNODE_CLOSED = 6;
     private static final int EVENT_SWITCH = 7;
 
-    private boolean pending_usblan_intent = false;
-    private boolean atcmd_service_stopped = false;
-    private boolean mtp_service_stopped = false;
-    private boolean rndis_service_stopped = false;
     private boolean mUsbCableAttached = false;
+    private boolean mUsbLanIntentSent = false;
     private boolean mADBEnabled = false;
+    private boolean mAtCmdServiceStopped = false;
+    private boolean mMtpServiceStopped = false;
+    private boolean mRndisServiceStopped = false;
 
     private int mADBStatusChangeMissedNumber = 0;
 
     private boolean mMediaMountedReceiverRegistered = false;
+    private BroadcastReceiver mMediaMountedReceiver;
+
     private int mIsSwitchFrom = USB_SWITCH_FROM_IDLE;
     private int mUsbState = USB_STATE_IDLE;
     private int mNewUsbMode = USB_MODE_NONE;
@@ -210,9 +212,8 @@ public class UsbService extends Service
     private UEventObserver mUEventObserver;
     private ITelephony mPhoneService;
     private BroadcastReceiver mUsbServiceReceiver;
-    private BroadcastReceiver mMediaMountedReceiver;
     private Notification mUsbConnectionNotification;
-    private Timer mWait4DevCloseTimer;
+    private Timer mWaitForDevCloseTimer;
 
     public UsbService() {
         mUsbServiceReceiver = new BroadcastReceiver() {
@@ -221,13 +222,13 @@ public class UsbService extends Service
                 Log.d(TAG, "onReceive(), received intent:" + action);
 
                 if (action.equals(ACTION_ATCMD_CLOSED)) {
-                    atcmd_service_stopped = true;
+                    mAtCmdServiceStopped = true;
                     handleAtCmdMtpDevClosed();
                 } else if (action.equals(ACTION_MTP_CLOSED)) {
-                    mtp_service_stopped = true;
+                    mMtpServiceStopped = true;
                     handleAtCmdMtpDevClosed();
                 } else if (action.equals(ACTION_RNDIS_CLOSED)) {
-                    rndis_service_stopped = true;
+                    mRndisServiceStopped = true;
                     handleAtCmdMtpDevClosed();
                 } else if (action.equals(ACTION_MODE_SWITCH_FROM_UI)) {
                     int index = intent.getIntExtra(EXTRA_MODE_SWITCH_MODE, -1);
@@ -399,8 +400,8 @@ public class UsbService extends Service
 
     private void StartWaitDevNodeClosedTimer() {
         Log.d(TAG, "StartWaitDevNodeClosedTimer()");
-        mWait4DevCloseTimer = new Timer();
-        mWait4DevCloseTimer.schedule(new TimerTask() {
+        mWaitForDevCloseTimer = new Timer();
+        mWaitForDevCloseTimer.schedule(new TimerTask() {
             public void run() {
                 WaitDevNodeClosedTimeout();
             }
@@ -429,7 +430,7 @@ public class UsbService extends Service
 
     private void StopWaitDevNodeClosedTimer() {
         Log.d(TAG, "StopWaitDevNodeClosedTimer()");
-        mWait4DevCloseTimer.cancel();
+        mWaitForDevCloseTimer.cancel();
     }
 
     private synchronized void UsbEventHandler(int event) {
@@ -604,9 +605,9 @@ public class UsbService extends Service
 
     private void WaitDevNodeClosedTimeout() {
         Log.d(TAG, "WaitDevNodeClosedTimeout()");
-        atcmd_service_stopped = false;
-        mtp_service_stopped = false;
-        rndis_service_stopped = false;
+        mAtCmdServiceStopped = false;
+        mMtpServiceStopped = false;
+        mRndisServiceStopped = false;
         UsbEventHandler(EVENT_DEVNODE_CLOSED);
     }
 
@@ -722,42 +723,42 @@ public class UsbService extends Service
         if ((mUsbState != USB_STATE_SWITCH_DEVNOD_CLOSE)
                 && (mUsbState != USB_STATE_DETACH_DEVNOD_CLOSE)
                 && (mUsbState != USB_STATE_ATTACH_DEVNOD_CLOSE)) {
-            atcmd_service_stopped = false;
-            mtp_service_stopped = false;
-            rndis_service_stopped = false;
+            mAtCmdServiceStopped = false;
+            mMtpServiceStopped = false;
+            mRndisServiceStopped = false;
         }
 
         ReadCurrentUsbMode();
         int usbModeClass = getUsbModeClass(mCurrentUsbMode);
 
         if (usbModeClass == USB_MODE_NGP) {
-            if (!atcmd_service_stopped) {
+            if (!mAtCmdServiceStopped) {
                 return;
             }
 
             StopWaitDevNodeClosedTimer();
-            atcmd_service_stopped = false;
+            mAtCmdServiceStopped = false;
             UsbEventHandler(EVENT_DEVNODE_CLOSED);
         } else if (usbModeClass == USB_MODE_MTP) {
-            if (!mtp_service_stopped) {
+            if (!mMtpServiceStopped) {
                 return;
             }
 
             StopWaitDevNodeClosedTimer();
-            mtp_service_stopped = false;
+            mMtpServiceStopped = false;
             UsbEventHandler(EVENT_DEVNODE_CLOSED);
         } else if (usbModeClass == USB_MODE_RNDIS) {
-            if (!rndis_service_stopped) {
+            if (!mRndisServiceStopped) {
                 return;
             }
 
             StopWaitDevNodeClosedTimer();
-            rndis_service_stopped = false;
+            mRndisServiceStopped = false;
             UsbEventHandler(EVENT_DEVNODE_CLOSED);
-        } else if ((usbModeClass == USB_MODE_MODEM) && atcmd_service_stopped && mtp_service_stopped) {
+        } else if ((usbModeClass == USB_MODE_MODEM) && mAtCmdServiceStopped && mMtpServiceStopped) {
             StopWaitDevNodeClosedTimer();
-            atcmd_service_stopped = false;
-            mtp_service_stopped = false;
+            mAtCmdServiceStopped = false;
+            mMtpServiceStopped = false;
             UsbEventHandler(EVENT_DEVNODE_CLOSED);
         }
     }
@@ -765,10 +766,10 @@ public class UsbService extends Service
     private void sendUsblanDownIntent() {
         Log.d(TAG, "sendUsblanDownIntent()");
 
-        if (pending_usblan_intent) {
+        if (mUsbLanIntentSent) {
             Intent intent = new Intent(ACTION_USBLAN_DOWN);
             sendBroadcast(intent);
-            pending_usblan_intent = false;
+            mUsbLanIntentSent = false;
         }
     }
 
@@ -779,7 +780,7 @@ public class UsbService extends Service
         if (mCurrentUsbMode == USB_MODE_NGP) {
             Intent intent = new Intent(ACTION_USBLAN_UP);
             sendBroadcast(intent);
-            pending_usblan_intent = true;
+            mUsbLanIntentSent = true;
         }
     }
 
