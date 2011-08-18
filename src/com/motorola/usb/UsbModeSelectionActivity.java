@@ -128,9 +128,9 @@ public class UsbModeSelectionActivity extends AlertActivity
         mAlertParams.mOnClickListener = mUsbClickListener;
         mAlertParams.mCheckedItem = getPositionFromMode(previousUsbModeIndex);
         mAlertParams.mIsSingleChoice = true;
-        mAlertParams.mPositiveButtonText = getString(R.string.usb_ok);
+        mAlertParams.mPositiveButtonText = getString(com.android.internal.R.string.ok);
         mAlertParams.mPositiveButtonListener = this;
-        mAlertParams.mNegativeButtonText = getString(R.string.usb_cancel);
+        mAlertParams.mNegativeButtonText = getString(com.android.internal.R.string.cancel);
         mAlertParams.mNegativeButtonListener = this;
 
         setupAlert();

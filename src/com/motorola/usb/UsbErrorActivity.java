@@ -62,11 +62,10 @@ public class UsbErrorActivity extends AlertActivity
         mAlertParams.mIconId = com.android.internal.R.drawable.ic_dialog_usb;
         mAlertParams.mTitle = getString(R.string.usb_connection);
 
-        mAlertParams.mMessage = getString(R.string.usb_error_message) + " " +
-                getIntent().getStringExtra(UsbService.EXTRA_ERROR_MODE_STRING) +
-                getString(R.string.usb_period);
+        mAlertParams.mMessage = getString(R.string.usb_error_message,
+                getIntent().getStringExtra(UsbService.EXTRA_ERROR_MODE_STRING));
 
-        mAlertParams.mPositiveButtonText = getString(R.string.usb_ok);
+        mAlertParams.mPositiveButtonText = getString(com.android.internal.R.string.ok);
         mAlertParams.mPositiveButtonListener = this;
         setupAlert();
     }

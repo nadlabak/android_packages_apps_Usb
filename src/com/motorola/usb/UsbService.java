@@ -635,13 +635,13 @@ public class UsbService extends Service
             return null;
         }
 
+        String toast = getString(R.string.usb_toast_connecting, getString(resId));
         if (mCurrentUsbMode == USB_MODE_MODEM) {
-            return getString(R.string.usb_toast_connecting_to) + " " + getString(resId) +
-                    getString(R.string.usb_period) + " " +
-                    getString(R.string.usb_toast_phone_data_disabled);
+            toast += " ";
+            toast += getString(R.string.usb_toast_phone_data_disabled);
         }
 
-        return getString(R.string.usb_toast_connecting_to) + " " + getString(resId);
+        return toast;
     }
 
     private int getUsbModeClass(int mode) {
