@@ -195,8 +195,8 @@ public final class UsbListener implements Runnable
             while (true) {
                 listenToSocket();
             }
-        } catch (Throwable ex) {
-            Log.e(TAG, "Fatal error " + ex + " in UsbListener thread!");
+        } catch (Exception e) {
+            Log.e(TAG, "Fatal error in UsbListener thread!", e);
         }
     }
 

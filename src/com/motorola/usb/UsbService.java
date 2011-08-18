@@ -26,6 +26,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Environment;
+import android.os.Handler;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.os.ServiceManager;
@@ -208,6 +209,7 @@ public class UsbService extends Service
     private int mCurrentUsbMode = USB_MODE_NONE;
 
     private UsbListener mUsbListener;
+    private Handler mHandler;
 
     private UEventObserver mUEventObserver;
     private ITelephony mPhoneService;
@@ -627,23 +629,6 @@ public class UsbService extends Service
         }
     }
 
-    private String getToastStringForMode(int mode) {
-        Log.d(TAG, "getToastStringForMode(" + mode + ")");
-
-        int resId = getStringResForMode(mode);
-        if (resId < 0) {
-            return null;
-        }
-
-        String toast = getString(R.string.usb_toast_connecting, getString(resId));
-        if (mCurrentUsbMode == USB_MODE_MODEM) {
-            toast += " ";
-            toast += getString(R.string.usb_toast_phone_data_disabled);
-        }
-
-        return toast;
-    }
-
     private int getUsbModeClass(int mode) {
         if (mode > USB_MODE_NONE) {
             Log.w(TAG, "getUsbModeClass("+ String.valueOf(mode) +") Unknown mode !");
@@ -793,6 +778,29 @@ public class UsbService extends Service
         }
     }
 
+    private void showConnectedToast(int mode) {
+        Log.d(TAG, "showConnectedToast(" + mode + ")");
+
+        int resId = getStringResForMode(mode);
+        if (resId < 0) {
+            return;
+        }
+
+        String toast = getString(R.string.usb_toast_connecting, getString(resId));
+        if (mCurrentUsbMode == USB_MODE_MODEM) {
+            toast += " ";
+            toast += getString(R.string.usb_toast_phone_data_disabled);
+        }
+        final String finalToast = toast;
+
+        mHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                Toast.makeText(UsbService.this, finalToast, Toast.LENGTH_LONG).show();
+            }
+        });
+    }
+
     private void setUsbModeFromUI(int mode)
     {
         Log.d(TAG, "setUsbModeFromUI(" + String.valueOf(mode) + ")");
@@ -802,7 +810,7 @@ public class UsbService extends Service
 
         if (mUsbState == USB_STATE_SERVICE_STARTUP) {
             mIsSwitchFrom = USB_SWITCH_FROM_UI;
-            Toast.makeText(this, getToastStringForMode(mode), Toast.LENGTH_LONG).show();
+            showConnectedToast(mode);
             UsbEventHandler(EVENT_SWITCH);
         } else {
             Log.w(TAG, "not in USB_SERVICE_STARTUP_STATE state");
@@ -835,7 +843,7 @@ public class UsbService extends Service
 
         try {
             ReadCurrentUsbMode();
-            Toast.makeText(this, getToastStringForMode(mCurrentUsbMode), Toast.LENGTH_LONG).show();
+            showConnectedToast(mCurrentUsbMode);
             setUsbConnectionNotificationVisibility(true, true);
             enableInternalDataConnectivity(mCurrentUsbMode != USB_MODE_MODEM);
             sendBroadcast(new Intent(ACTION_CABLE_ATTACHED));
@@ -990,7 +998,9 @@ public class UsbService extends Service
 
         ReadCurrentUsbMode();
 
+        mHandler = new Handler();
         mUsbListener = new UsbListener(this);
+
         new Thread(mUsbListener, UsbListener.class.getName()).start();
         mUEventObserver.startObserving("DEVPATH=/devices/virtual/misc/usbnet_enable");
     }
