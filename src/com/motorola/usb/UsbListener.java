@@ -69,6 +69,8 @@ public final class UsbListener implements Runnable
     public static final String MODE_MODEM = "usb_mode_modem";
     public static final String MODE_CHARGE = "usb_mode_charge_only";
 
+    public static final String CMD_UNLOAD_DRIVER = "usb_unload_driver";
+
     public UsbListener(UsbService service) {
         mUsbService = service;
     }
