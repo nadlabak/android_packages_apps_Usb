@@ -27,41 +27,70 @@ import java.io.OutputStream;
 
 public final class UsbListener implements Runnable
 {
+    private static final String TAG = "UsbListener";
+
     private OutputStream mOutputStream;
     private UsbService mUsbService;
+
+    public static final String EVENT_CABLE_CONNECTED = "cable_connected";
+    public static final String EVENT_CABLE_CONNECTED_FACTORY = "cable_connected_factory";
+    public static final String EVENT_CABLE_DISCONNECTED = "cable_disconnected";
+    public static final String EVENT_ENUMERATED = "usb_enumerated";
+    public static final String EVENT_GET_DESCRIPTOR = "get_descriptor";
+    public static final String EVENT_ADB_ON = "usbd_adb_status_on";
+    public static final String EVENT_ADB_OFF = "usbd_adb_status_off";
+    public static final String EVENT_START_NGP = "usbd_start_ngp";
+    public static final String EVENT_START_MTP = "usbd_start_ngp";
+    public static final String EVENT_START_MSC = "usbd_start_msc_mount";
+    public static final String EVENT_START_ACM = "usbd_start_acm";
+    public static final String EVENT_START_MODEM = "usbd_start_modem";
+    public static final String EVENT_START_RNDIS = "usbd_start_rndis";
+    private static final String EVENT_START_PREFIX = "usbd_start_";
+    public static final String EVENT_REQ_NGP = "usbd_req_switch_ngp";
+    public static final String EVENT_REQ_MTP = "usbd_req_switch_mtp";
+    public static final String EVENT_REQ_MSC = "usbd_req_switch_msc";
+    public static final String EVENT_REQ_ACM = "usbd_req_switch_acm";
+    public static final String EVENT_REQ_MODEM = "usbd_req_switch_modem";
+    public static final String EVENT_REQ_RNDIS = "usbd_req_switch_rndis";
+    public static final String EVENT_REQ_NONE = "usbd_req_switch_none";
+    private static final String EVENT_REQ_PREFIX = "usbd_req_switch_";
+    public static final String SWITCH_OK_POSTFIX = ":ok";
+    public static final String SWITCH_FAIL_POSTFIX = ":fail";
+
+    public static final String MODE_NGP = "usb_mode_ngp";
 
     public UsbListener(UsbService service) {
         mUsbService = service;
     }
 
     private void handleEvent(String event) {
-        Log.d("UsbListener", "handleEvent: " + event);
+        Log.d(TAG, "handleEvent: " + event);
+
         if (event.length() == 0) {
-            Log.d("UsbListener", "discard invalid event from USBD");
+            Log.d(TAG, "discard invalid event from USBD");
+            return;
         }
 
-        if (event.equals("cable_connected")) {
+        if (event.equals(EVENT_CABLE_CONNECTED)) {
             mUsbService.handleUsbCableAttachment();
-        } else if (event.equals("usb_enumerated")) {
+        } else if (event.equals(EVENT_ENUMERATED)) {
             mUsbService.handleUsbCableEnumerate();
-        } else if (event.equals("cable_connected_factory")) {
-            sendUsbModeSwitchCmd("usb_mode_ngp");
-        } else if (event.equals("get_descriptor")) {
+        } else if (event.equals(EVENT_CABLE_CONNECTED_FACTORY)) {
+            sendUsbModeSwitchCmd(MODE_NGP);
+        } else if (event.equals(EVENT_GET_DESCRIPTOR)) {
             mUsbService.handleGetDescriptor();
-        } else if (event.equals("cable_disconnected")) {
+        } else if (event.equals(EVENT_CABLE_DISCONNECTED)) {
             mUsbService.handleUsbCableDetachment();
-        } else if (event.equals("usbd_adb_status_on")) {
+        } else if (event.equals(EVENT_ADB_ON)) {
             mUsbService.handleADBOnOff(true);
-        } else if (event.equals("usbd_adb_status_off")) {
+        } else if (event.equals(EVENT_ADB_OFF)) {
             mUsbService.handleADBOnOff(false);
-        } else if (event.equals("usbd_start_ngp") || event.equals("usbd_start_mtp") || event.equals("usbd_start_msc_mount") ||
-                event.equals("usbd_start_acm") || event.equals("usbd_start_modem") || event.equals("usbd_start_rndis")) {
+        } else if (event.startsWith(EVENT_START_PREFIX)) {
             mUsbService.handleStartService(event);
-        } else if (event.equals("usbd_req_switch_ngp") || event.equals("usbd_req_switch_mtp") || event.equals("usbd_req_switch_msc") ||
-                event.equals("usbd_req_switch_modem") || event.equals("usbd_req_switch_rndis")) {
+        } else if (event.startsWith(EVENT_REQ_PREFIX)) {
             mUsbService.handleUsbModeSwitchFromUsbd(event);
         } else {
-            Log.i("UsbListener", "Assuming mode switch completed");
+            Log.i(TAG, "Assuming mode switch completed");
             mUsbService.handleUsbModeSwitchComplete(event);
         }
     }
@@ -99,8 +128,8 @@ public final class UsbListener implements Runnable
                     break; //failure
                 }
             }
-        } catch (IOException ex) {
-            Log.e("UsbListener", "IOException, connect/read socket");
+        } catch (IOException e) {
+            Log.e(TAG, "IOException, connect/read socket", e);
         }
 
         //clean up
@@ -108,8 +137,8 @@ public final class UsbListener implements Runnable
             if (mOutputStream != null) {
                 try {
                     mOutputStream.close();
-                } catch (IOException ex) {
-                    Log.w("UsbListener", "IOException closing output stream");
+                } catch (IOException e) {
+                    Log.w(TAG, "IOException closing output stream", e);
                 }
 
                 mOutputStream = null;
@@ -118,19 +147,19 @@ public final class UsbListener implements Runnable
             if (usbdSocket != null) {
                 try {
                     usbdSocket.close();
-                } catch (IOException ex) {
-                    Log.w("UsbListener", "IOException closing socket");
+                } catch (IOException e) {
+                    Log.w(TAG, "IOException closing socket", e);
                 }
             }
 
-            Log.e("UsbListener", "Failed to connect to usbd", new IllegalStateException());
+            Log.e(TAG, "Failed to connect to usbd", new IllegalStateException());
             SystemClock.sleep(2000);
         }
     }
 
     private synchronized void writeCommand(String cmd, String arg) {
         if (mOutputStream == null) {
-            Log.e("UsbListener", "No connection to usbd");
+            Log.e(TAG, "No connection to usbd");
             return;
         }
 
@@ -144,8 +173,8 @@ public final class UsbListener implements Runnable
 
         try {
             mOutputStream.write(line.getBytes());
-        } catch (IOException ex) {
-            Log.e("UsbListener", "IOException in writeCommand");
+        } catch (IOException e) {
+            Log.e(TAG, "IOException in writeCommand", e);
         }
     }
 
@@ -155,12 +184,12 @@ public final class UsbListener implements Runnable
                 listenToSocket();
             }
         } catch (Throwable ex) {
-            Log.e("UsbListener", "Fatal error " + ex + " in UsbListener thread!");
+            Log.e(TAG, "Fatal error " + ex + " in UsbListener thread!");
         }
     }
 
     public void sendUsbModeSwitchCmd(String cmd) {
-        Log.d("UsbListener", "received usb mode change command from UI: " + cmd);
+        Log.d(TAG, "received usb mode change command from UI: " + cmd);
         writeCommand(cmd, null);
     }
 }

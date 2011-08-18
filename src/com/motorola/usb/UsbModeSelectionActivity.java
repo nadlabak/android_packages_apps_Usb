@@ -38,6 +38,7 @@ import com.android.internal.app.AlertController.AlertParams;
 public class UsbModeSelectionActivity extends AlertActivity 
         implements DialogInterface.OnClickListener
 {
+    private static final String TAG = "UsbModeSelectionActivity";
     private final int NO_ITEM = -1;
 
     private boolean isModemAvailable = true;
@@ -57,8 +58,8 @@ public class UsbModeSelectionActivity extends AlertActivity
         mUsbModeSwitchReceiver = new BroadcastReceiver() {
             public void onReceive(Context context, Intent intent) {
                 String action = intent.getAction();
-                Log.d("UsbModeSelectionActivity", "onReceive(), received Intent -- " + action);
-                if (action.equals("com.motorola.intent.action.USB_CABLE_DETACHED")) {
+                Log.d(TAG, "onReceive(), received Intent -- " + action);
+                if (action.equals(UsbService.ACTION_CABLE_DETACHED)) {
                     finish();
                 }
             }
@@ -67,7 +68,7 @@ public class UsbModeSelectionActivity extends AlertActivity
         mUsbClickListener = new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
                 currentUsbModeIndex = modeAtPosition[which];
-                Log.d("UsbModeSelectionActivity", "onClick() -- " + String.valueOf(which) +
+                Log.d(TAG, "onClick() -- " + String.valueOf(which) +
                         "->" + String.valueOf(currentUsbModeIndex));
             }
         };
@@ -81,7 +82,7 @@ public class UsbModeSelectionActivity extends AlertActivity
                 try {
                     previousUsbModeIndex = System.getInt(getContentResolver(), "USB_SETTING");
                 } catch (SettingNotFoundException ex) {
-                    Log.w("UsbModeSelectionActivity", "ReadPreviousUsbMode()", ex);
+                    Log.w(TAG, "ReadPreviousUsbMode()", ex);
                     previousUsbModeIndex = SystemProperties.getInt("ro.default_usb_mode", 0);
                     System.putInt(getContentResolver(), "USB_SETTING", previousUsbModeIndex);
                 }
@@ -89,16 +90,16 @@ public class UsbModeSelectionActivity extends AlertActivity
                 previousUsbModeIndex = modeFromPC;
             }
         } catch (SettingNotFoundException ex) {
-            Log.w("UsbModeSelectionActivity", "ReadPreviousUsbMode()", ex);
+            Log.w(TAG, "ReadPreviousUsbMode()", ex);
             try {
                 previousUsbModeIndex = System.getInt(getContentResolver(), "USB_SETTING");
             } catch (SettingNotFoundException ex2) {
-                Log.w("UsbModeSelectionActivity", "ReadPreviousUsbMode()", ex2);
+                Log.w(TAG, "ReadPreviousUsbMode()", ex2);
                 previousUsbModeIndex = SystemProperties.getInt("ro.default_usb_mode", 0);
                 System.putInt(getContentResolver(), "USB_SETTING", previousUsbModeIndex);
             }
         }
-        Log.d("UsbModeSelectionActivity", "ReadPreviousUsbMode() = " + String.valueOf(previousUsbModeIndex));
+        Log.d(TAG, "ReadPreviousUsbMode() = " + String.valueOf(previousUsbModeIndex));
     }
 
     private boolean getModemAvailableFlex() {
@@ -140,24 +141,25 @@ public class UsbModeSelectionActivity extends AlertActivity
     }
 
     private int getPositionFromMode(int mode) {
-        Log.d("UsbModeSelectionActivity", "getPositionFromMode() --  " + String.valueOf(mode));
+        Log.d(TAG, "getPositionFromMode() --  " + String.valueOf(mode));
 
         int i = 0;
         while (i <= UsbService.USB_MODE_NONE) {
-            if (modeAtPosition[i] == mode)
+            if (modeAtPosition[i] == mode) {
                 return i;
+            }
             i = i + 1;
         }
         return previousUsbModeIndex;
     }
 
     public void onClick(DialogInterface dialog, int which) {
-        Log.d("UsbModeSelectionActivity", "onClick() --  " + String.valueOf(which));
+        Log.d(TAG, "onClick() --  " + String.valueOf(which));
 
         if (which == -1) {
             if (currentUsbModeIndex != previousUsbModeIndex) {
-                Intent intent = new Intent("com.motorola.intent.action.USB_MODE_SWITCH_FROM_UI");
-                intent.putExtra("USB_MODE_INDEX", String.valueOf(currentUsbModeIndex));
+                Intent intent = new Intent(UsbService.ACTION_MODE_SWITCH_FROM_UI);
+                intent.putExtra(UsbService.EXTRA_MODE_SWITCH_MODE, currentUsbModeIndex);
                 sendBroadcast(intent);
             }
         }
@@ -181,7 +183,7 @@ public class UsbModeSelectionActivity extends AlertActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        Log.d("UsbModeSelectionActivity", "onCreate()");
+        Log.d(TAG, "onCreate()");
 
         if (isUsbTethered()) {
             Toast.makeText(this, R.string.usb_tethered_message, Toast.LENGTH_LONG).show();
@@ -264,7 +266,7 @@ public class UsbModeSelectionActivity extends AlertActivity
 
         setupAlert();
 
-        registerReceiver(mUsbModeSwitchReceiver, new IntentFilter("com.motorola.intent.action.USB_CABLE_DETACHED"));
+        registerReceiver(mUsbModeSwitchReceiver, new IntentFilter(UsbService.ACTION_CABLE_DETACHED));
     }
 
     protected void onDestroy()

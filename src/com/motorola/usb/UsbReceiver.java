@@ -24,13 +24,15 @@ import android.content.Intent;
 import android.util.Log;
 
 public class UsbReceiver extends BroadcastReceiver {
+    private static final String TAG = "UsbReceiver";
+
     public void onReceive(Context context, Intent intent) {
         String action = intent.getAction();
 
-        Log.d("UsbReceiver", "onReceive(), received intent -- " + action);
+        Log.d(TAG, "onReceive(), received intent -- " + action);
 
-        if (action.equals("android.intent.action.BOOT_COMPLETED")) {
-            context.startService( new Intent("com.motorola.intent.action.USB_LAUNCH_USBSERVICE"));
+        if (action.equals(Intent.ACTION_BOOT_COMPLETED)) {
+            context.startService( new Intent(UsbService.ACTION_LAUNCH_SERVICE));
         }
     }
 }
