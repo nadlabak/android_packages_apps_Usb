@@ -25,170 +25,142 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-public final class UsbListener
-	implements Runnable
+public final class UsbListener implements Runnable
 {
-	private OutputStream mOutputStream;
-	private UsbService mUsbService;
+    private OutputStream mOutputStream;
+    private UsbService mUsbService;
 
-	public UsbListener(UsbService service)
-	{
-		mUsbService = service;
-	}
+    public UsbListener(UsbService service) {
+        mUsbService = service;
+    }
 
-	private void handleEvent(String event)
-	{
-		Log.d("UsbListener", "handleEvent: " + event);
-		if (event.length() == 0)
-			Log.d("UsbListener", "discard invalid event from USBD");
+    private void handleEvent(String event) {
+        Log.d("UsbListener", "handleEvent: " + event);
+        if (event.length() == 0) {
+            Log.d("UsbListener", "discard invalid event from USBD");
+        }
 
-		if (event.equals("cable_connected"))
-			mUsbService.handleUsbCableAttachment();
-		else if (event.equals("usb_enumerated"))
-			mUsbService.handleUsbCableEnumerate();
-		else if (event.equals("cable_connected_factory"))
-			sendUsbModeSwitchCmd("usb_mode_ngp");
-		else if (event.equals("get_descriptor"))
-			mUsbService.handleGetDescriptor();
-		else if (event.equals("cable_disconnected"))
-			mUsbService.handleUsbCableDetachment();
-		else if (event.equals("usbd_adb_status_on"))
-			mUsbService.handleADBOnOff(true);
-		else if (event.equals("usbd_adb_status_off"))
-			mUsbService.handleADBOnOff(false);
-		else if ( event.equals("usbd_start_ngp") || event.equals("usbd_start_mtp") || event.equals("usbd_start_msc_mount") ||
-			 event.equals("usbd_start_acm") || event.equals("usbd_start_modem") || event.equals("usbd_start_rndis") )
-			mUsbService.handleStartService(event);
-		else if ( event.equals("usbd_req_switch_ngp") || event.equals("usbd_req_switch_mtp") || event.equals("usbd_req_switch_msc") ||
-			 event.equals("usbd_req_switch_modem") || event.equals("usbd_req_switch_rndis") )
-			mUsbService.handleUsbModeSwitchFromUsbd(event);
-		else {
-			Log.i("UsbListener", "Assuming mode switch completed");
-			mUsbService.handleUsbModeSwitchComplete(event);
-		}
-	}
+        if (event.equals("cable_connected")) {
+            mUsbService.handleUsbCableAttachment();
+        } else if (event.equals("usb_enumerated")) {
+            mUsbService.handleUsbCableEnumerate();
+        } else if (event.equals("cable_connected_factory")) {
+            sendUsbModeSwitchCmd("usb_mode_ngp");
+        } else if (event.equals("get_descriptor")) {
+            mUsbService.handleGetDescriptor();
+        } else if (event.equals("cable_disconnected")) {
+            mUsbService.handleUsbCableDetachment();
+        } else if (event.equals("usbd_adb_status_on")) {
+            mUsbService.handleADBOnOff(true);
+        } else if (event.equals("usbd_adb_status_off")) {
+            mUsbService.handleADBOnOff(false);
+        } else if (event.equals("usbd_start_ngp") || event.equals("usbd_start_mtp") || event.equals("usbd_start_msc_mount") ||
+                event.equals("usbd_start_acm") || event.equals("usbd_start_modem") || event.equals("usbd_start_rndis")) {
+            mUsbService.handleStartService(event);
+        } else if (event.equals("usbd_req_switch_ngp") || event.equals("usbd_req_switch_mtp") || event.equals("usbd_req_switch_msc") ||
+                event.equals("usbd_req_switch_modem") || event.equals("usbd_req_switch_rndis")) {
+            mUsbService.handleUsbModeSwitchFromUsbd(event);
+        } else {
+            Log.i("UsbListener", "Assuming mode switch completed");
+            mUsbService.handleUsbModeSwitchComplete(event);
+        }
+    }
 
-	private void listenToSocket()
-	{
-		LocalSocket usbdSocket = null;
+    private void listenToSocket() {
+        LocalSocket usbdSocket = null;
 
-		try
-		{
-			usbdSocket = new LocalSocket();
-			LocalSocketAddress.Namespace fsNamespace = LocalSocketAddress.Namespace.FILESYSTEM;
-			LocalSocketAddress socketAddress = new LocalSocketAddress("/dev/socket/usbd", fsNamespace);
-			usbdSocket.connect(socketAddress);
+        try {
+            usbdSocket = new LocalSocket();
+            LocalSocketAddress.Namespace fsNamespace = LocalSocketAddress.Namespace.FILESYSTEM;
+            LocalSocketAddress socketAddress = new LocalSocketAddress("/dev/socket/usbd", fsNamespace);
+            usbdSocket.connect(socketAddress);
 
-			InputStream usbdInputStream = usbdSocket.getInputStream();
-			mOutputStream = usbdSocket.getOutputStream();
+            InputStream usbdInputStream = usbdSocket.getInputStream();
+            mOutputStream = usbdSocket.getOutputStream();
 
-			byte[] buffer = new byte[100];
+            byte[] buffer = new byte[100];
 
-			while (true)
-			{
-				int count = usbdInputStream.read(buffer);
+            while (true) {
+                int count = usbdInputStream.read(buffer);
 
-				if (count >= 0)
-				{
-					int i = 0;
-					int k = 0;
+                if (count >= 0) {
+                    int i = 0;
+                    int k = 0;
 
-					while (i < count)
-					{
-						if (buffer[i] == 0)
-						{
-							handleEvent(new String(buffer, k, i - k));
-							k = i + 1;
-						}
+                    while (i < count) {
+                        if (buffer[i] == 0) {
+                            handleEvent(new String(buffer, k, i - k));
+                            k = i + 1;
+                        }
 
-						i = i + 1;
-					}
-				}
-				else
-					break; //failure
-			}
+                        i = i + 1;
+                    }
+                } else {
+                    break; //failure
+                }
+            }
+        } catch (IOException ex) {
+            Log.e("UsbListener", "IOException, connect/read socket");
+        }
 
-		}
-		catch (IOException ex)
-		{
-			Log.e("UsbListener", "IOException, connect/read socket");
-		}
+        //clean up
+        synchronized(this) {
+            if (mOutputStream != null) {
+                try {
+                    mOutputStream.close();
+                } catch (IOException ex) {
+                    Log.w("UsbListener", "IOException closing output stream");
+                }
 
-		//clean up
-		synchronized(this)
-		{
-			if (mOutputStream != null)
-			{
-				try
-				{
-					mOutputStream.close();
-				}
-				catch (IOException ex)
-				{
-					Log.w("UsbListener", "IOException closing output stream");
-				}
+                mOutputStream = null;
+            }
 
-				mOutputStream = null;
-			}
+            if (usbdSocket != null) {
+                try {
+                    usbdSocket.close();
+                } catch (IOException ex) {
+                    Log.w("UsbListener", "IOException closing socket");
+                }
+            }
 
-			if (usbdSocket != null)
-			{
-				try
-				{
-					usbdSocket.close();
-				}
-				catch(IOException ex)
-				{
-					Log.w("UsbListener", "IOException closing socket");
-				}
-			}
+            Log.e("UsbListener", "Failed to connect to usbd", new IllegalStateException());
+            SystemClock.sleep(2000);
+        }
+    }
 
-			Log.e("UsbListener", "Failed to connect to usbd", new IllegalStateException());
-			SystemClock.sleep(2000);
-		}
-	}
+    private synchronized void writeCommand(String cmd, String arg) {
+        if (mOutputStream == null) {
+            Log.e("UsbListener", "No connection to usbd");
+            return;
+        }
 
-	private synchronized void writeCommand(String cmd, String arg)
-	{
-		if (mOutputStream == null)
-		{
-			Log.e("UsbListener", "No connection to usbd");
-			return;
-		}
+        String line = cmd;
 
-		String line = cmd;
+        if (arg != null) {
+            line = cmd + arg + "\0";
+        } else {
+            line = cmd + "\0";
+        }
 
-		if (arg != null)
-			line = cmd + arg + "\0";
-		else
-			line = cmd + "\0";
+        try {
+            mOutputStream.write(line.getBytes());
+        } catch (IOException ex) {
+            Log.e("UsbListener", "IOException in writeCommand");
+        }
+    }
 
-		try
-		{
-			mOutputStream.write(line.getBytes());
-		}
-		catch (IOException ex)
-		{
-			Log.e("UsbListener", "IOException in writeCommand");
-		}
-	}
+    public void run() {
+        try {
+            while (true) {
+                listenToSocket();
+            }
+        } catch (Throwable ex) {
+            Log.e("UsbListener", "Fatal error " + ex + " in UsbListener thread!");
+        }
+    }
 
-	public void run()
-	{
-		try
-		{
-			while (true)
-				listenToSocket();
-		}
-		catch (Throwable ex)
-		{
-			Log.e("UsbListener", "Fatal error " + ex + " in UsbListener thread!");
-		}
-	}
-
-	public void sendUsbModeSwitchCmd(String cmd)
-	{
-		Log.d("UsbListener", "received usb mode change command from UI: " + cmd);
-		writeCommand(cmd, null);
-	}
+    public void sendUsbModeSwitchCmd(String cmd) {
+        Log.d("UsbListener", "received usb mode change command from UI: " + cmd);
+        writeCommand(cmd, null);
+    }
 }
