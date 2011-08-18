@@ -12,4 +12,7 @@
         <item>2</item>
         <item>5</item>
     </integer-array>
+
+    <!-- Whether to allow mode switching while tethered or not -->
+    <bool name="allow_mode_change_while_tethered">false</bool>
 </resources>

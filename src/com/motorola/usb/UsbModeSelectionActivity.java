@@ -25,6 +25,7 @@ import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.res.Resources;
 import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.os.SystemProperties;
@@ -142,13 +143,15 @@ public class UsbModeSelectionActivity extends AlertActivity
 
         Log.d(TAG, "onCreate()");
 
-        if (isUsbTethered()) {
+        Resources res = getResources();
+
+        if (!res.getBoolean(R.bool.allow_mode_change_while_tethered) && isUsbTethered()) {
             Toast.makeText(this, R.string.usb_tethered_message, Toast.LENGTH_LONG).show();
             finish();
         }
 
-        mModeEntries = getResources().getStringArray(R.array.usb_mode_entries);
-        mModeValues = getResources().getIntArray(R.array.usb_mode_values);
+        mModeEntries = res.getStringArray(R.array.usb_mode_entries);
+        mModeValues = res.getIntArray(R.array.usb_mode_values);
 
         ReadPreviousUsbMode();
         currentUsbModeIndex = previousUsbModeIndex;
