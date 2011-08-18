@@ -41,7 +41,10 @@ import android.provider.Settings.System;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.widget.Toast;
+
 import com.android.internal.telephony.ITelephony;
+
+import java.util.HashMap;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -95,15 +98,19 @@ public class UsbService extends Service
     public static final String EXTRA_TETHERING_STATE = "state";
     private static final String EXTRA_RECONFIGURE_CONNECTED = "connected";
 
-    private static final String[] mUsbModeString = new String[] {
-        "Motorola Phone Tools",
-        "Windows Media Sync",
-        "Memory Card Management",
-        "USB Networking",
-        "Phone as Modem",
-        //"Test",
-        "None",
-    };
+    private static class ModeInfo {
+        String name;
+        String mode;
+        String adbMode;
+
+        public ModeInfo(String name, String mode, String adbMode) {
+            this.name = name;
+            this.mode = mode;
+            this.adbMode = adbMode;
+        }
+    }
+
+    private static final HashMap<Integer, ModeInfo> sModes = new HashMap<Integer, ModeInfo>();
 
     /* Possible modes assigned by system/bin/usbd tool :
 
@@ -134,26 +141,28 @@ public class UsbService extends Service
        https://www.gitorious.org/android_kernel_omap/android_kernel_omap/blobs/motorola_342_145_r1561/drivers/usb/gadget/mot_android.c#line87
     */
 
-    //the two following tables are used to switch to this mode (if adb or not)
-    private static final String[] mUsbModeSwitchCmdADBMapping = new String[] {
-        "usb_mode_ngp_adb",
-        "usb_mode_mtp_adb",
-        "usb_mode_msc_adb",
-        "usb_mode_rndis_adb",
-        "usb_mode_modem",      // usb_mode_modem_adb doesnt works (with adb)
-        //"usb_mode_adb",
-        "usb_mode_charge_adb", // charge only but adb ?? :p
-    };
+    public static final int USB_MODE_NGP = 0;
+    public static final int USB_MODE_MTP = 1;
+    public static final int USB_MODE_MSC = 2;
+    public static final int USB_MODE_RNDIS = 3;
+    public static final int USB_MODE_MODEM = 4;
+    public static final int USB_MODE_NONE = 5;
 
-    private static final String[] mUsbModeSwitchCmdMapping = new String[] {
-        "usb_mode_ngp",        //usb_mode_ngp seems to share drivers (cdrom partition)
-        "usb_mode_mtp",
-        "usb_mode_msc",
-        "usb_mode_rndis",
-        "usb_mode_modem",
-        //"usb_mode_hid",
-        "usb_mode_charge_only",
-    };
+    static {
+        sModes.put(USB_MODE_NGP, new ModeInfo(
+                    "Motorola Phone Tools", UsbListener.MODE_NGP, UsbListener.MODE_NGP_ADB));
+        sModes.put(USB_MODE_MTP, new ModeInfo(
+                    "Windows Media Sync", UsbListener.MODE_MTP, UsbListener.MODE_MTP_ADB));
+        sModes.put(USB_MODE_MSC, new ModeInfo(
+                    "Memory Card", UsbListener.MODE_MSC, UsbListener.MODE_MSC_ADB));
+        sModes.put(USB_MODE_RNDIS, new ModeInfo(
+                    "USB Networking", UsbListener.MODE_RNDIS, UsbListener.MODE_RNDIS_ADB));
+        /* there is no working modem + ADB mode */
+        sModes.put(USB_MODE_MODEM, new ModeInfo(
+                    "Phone as Modem", UsbListener.MODE_MODEM, UsbListener.MODE_MODEM));
+        sModes.put(USB_MODE_NONE, new ModeInfo(
+                    "None", UsbListener.MODE_CHARGE, UsbListener.MODE_CHARGE_ADB));
+    }
 
     private static final String[] mUsbStateString = new String[] {
         "USB Idle State",
@@ -170,14 +179,6 @@ public class UsbService extends Service
     public static final int USB_STATE_SWITCH_DEVNOD_CLOSE = 3;
     public static final int USB_STATE_DETACH_DEVNOD_CLOSE = 4;
     public static final int USB_STATE_ATTACH_DEVNOD_CLOSE = 5;
-
-    public static final int USB_MODE_NGP = 0;
-    public static final int USB_MODE_MTP = 1;
-    public static final int USB_MODE_MSC = 2;
-    public static final int USB_MODE_RNDIS = 3;
-    public static final int USB_MODE_MODEM = 4;
-    //public static final int USB_MODE_HID  = 5;
-    public static final int USB_MODE_NONE = 5;
 
     public static final int USB_SWITCH_FROM_IDLE = -1;
     public static final int USB_SWITCH_FROM_UI = 0;
@@ -476,10 +477,11 @@ public class UsbService extends Service
             case USB_STATE_IDLE:
                 if (event == EVENT_CABLE_INSERTED) {
                     mUsbState = USB_STATE_WAIT_ENUM;
-                    if (mADBEnabled)
+                    if (mADBEnabled) {
                         mUsbListener.sendUsbModeSwitchCmd(getUsbModeSwitchCmdADB(mCurrentUsbMode));
-                    else
+                    } else {
                         mUsbListener.sendUsbModeSwitchCmd(getUsbModeSwitchCmd(mCurrentUsbMode));
+                    }
                 } else if (event == EVENT_ENUMERATED) {
                     Log.d(TAG, "Idle state, receive USB_CABLE_ENUMERATE_EVENT.");
                     mUsbState = USB_STATE_SERVICE_STARTUP;
@@ -723,29 +725,30 @@ public class UsbService extends Service
     }
 
     private int checkUsbMode(int mode) {
-        int checked = mode;
-        if (mode < 0 || mode > USB_MODE_NONE) {
+        if (sModes.get(mode) == null) {
             Log.w(TAG, "checkUsbMode(" + String.valueOf(mode) + ") mode unknown !");
-            if (mCurrentUsbMode < 0 || mCurrentUsbMode >= USB_MODE_NONE)
-                checked = USB_MODE_NONE;
-            else
-                checked = mCurrentUsbMode;
+            if (sModes.get(mCurrentUsbMode) == null) {
+                return USB_MODE_NONE;
+            } else {
+                return mCurrentUsbMode;
+            }
         }
-        return checked;
+        return mode;
     }
 
     private String getUsbModeString(int mode) {
-        return mUsbModeString[checkUsbMode(mode)];
+        ModeInfo info = sModes.get(mode);
+        return info != null ? info.name : null;
     }
 
     private String getUsbModeSwitchCmd(int mode) {
-        mode = checkUsbMode(mode);
-        return mUsbModeSwitchCmdMapping[mode];
+        ModeInfo info = sModes.get(mode);
+        return info != null ? info.mode : null;
     }
 
     private String getUsbModeSwitchCmdADB(int mode) {
-        mode = checkUsbMode(mode);
-        return mUsbModeSwitchCmdADBMapping[mode];
+        ModeInfo info = sModes.get(mode);
+        return info != null ? info.adbMode : null;
     }
 
     private void handleAtCmdMtpDevClosed() {

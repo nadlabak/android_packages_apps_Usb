@@ -57,7 +57,17 @@ public final class UsbListener implements Runnable
     public static final String SWITCH_OK_POSTFIX = ":ok";
     public static final String SWITCH_FAIL_POSTFIX = ":fail";
 
+    public static final String MODE_NGP_ADB = "usb_mode_ngp_adb";
+    public static final String MODE_MTP_ADB = "usb_mode_mtp_adb";
+    public static final String MODE_MSC_ADB = "usb_mode_msc_adb";
+    public static final String MODE_RNDIS_ADB = "usb_mode_rndis_adb";
+    public static final String MODE_CHARGE_ADB = "usb_mode_charge_adb";
     public static final String MODE_NGP = "usb_mode_ngp";
+    public static final String MODE_MTP = "usb_mode_mtp";
+    public static final String MODE_MSC = "usb_mode_msc";
+    public static final String MODE_RNDIS = "usb_mode_rndis";
+    public static final String MODE_MODEM = "usb_mode_modem";
+    public static final String MODE_CHARGE = "usb_mode_charge_only";
 
     public UsbListener(UsbService service) {
         mUsbService = service;
@@ -189,7 +199,9 @@ public final class UsbListener implements Runnable
     }
 
     public void sendUsbModeSwitchCmd(String cmd) {
-        Log.d(TAG, "received usb mode change command from UI: " + cmd);
-        writeCommand(cmd, null);
+        if (cmd != null) {
+            Log.d(TAG, "received usb mode change command from UI: " + cmd);
+            writeCommand(cmd, null);
+        }
     }
 }
