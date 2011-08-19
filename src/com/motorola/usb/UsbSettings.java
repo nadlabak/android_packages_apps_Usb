@@ -19,7 +19,6 @@ package com.motorola.usb;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.os.SystemProperties;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
@@ -41,7 +40,7 @@ public class UsbSettings
             retval = prefs.getInt(KEY_UI, -1);
             Log.d(TAG, "USB mode (UI) : " + retval);
         } else {
-            retval = SystemProperties.getInt("ro.default_usb_mode", 0);
+            retval = context.getResources().getInteger(R.integer.default_usb_mode);
             Log.d(TAG, "USB mode (fallback) : " + retval);
         }
 

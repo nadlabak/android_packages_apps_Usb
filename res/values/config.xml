@@ -13,6 +13,9 @@
         <item>5</item>
     </integer-array>
 
+    <!-- Default mode USB if nothing was configured by the user yet -->
+    <integer name="default_usb_mode">5</integer>
+
     <!-- Whether to allow mode switching while tethered or not -->
     <bool name="allow_mode_change_while_tethered">false</bool>
 </resources>
