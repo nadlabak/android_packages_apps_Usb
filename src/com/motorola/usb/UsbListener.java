@@ -19,6 +19,7 @@ package com.motorola.usb;
 
 import android.net.LocalSocket;
 import android.net.LocalSocketAddress;
+import android.os.Handler;
 import android.os.SystemClock;
 import android.util.Log;
 import java.io.IOException;
@@ -30,7 +31,7 @@ public final class UsbListener implements Runnable
     private static final String TAG = "UsbListener";
 
     private OutputStream mOutputStream;
-    private UsbService mUsbService;
+    private Handler mHandler;
 
     public static final String EVENT_CABLE_CONNECTED = "cable_connected";
     public static final String EVENT_CABLE_CONNECTED_FACTORY = "cable_connected_factory";
@@ -54,8 +55,8 @@ public final class UsbListener implements Runnable
     public static final String EVENT_REQ_RNDIS = "usbd_req_switch_rndis";
     public static final String EVENT_REQ_NONE = "usbd_req_switch_none";
     private static final String EVENT_REQ_PREFIX = "usbd_req_switch_";
-    public static final String SWITCH_OK_POSTFIX = ":ok";
-    public static final String SWITCH_FAIL_POSTFIX = ":fail";
+    private static final String SWITCH_OK_POSTFIX = ":ok";
+    private static final String SWITCH_FAIL_POSTFIX = ":fail";
 
     public static final String MODE_NGP_ADB = "usb_mode_ngp_adb";
     public static final String MODE_MTP_ADB = "usb_mode_mtp_adb";
@@ -71,39 +72,42 @@ public final class UsbListener implements Runnable
 
     public static final String CMD_UNLOAD_DRIVER = "usb_unload_driver";
 
-    public UsbListener(UsbService service) {
-        mUsbService = service;
+    public UsbListener(Handler handler) {
+        mHandler = handler;
     }
 
     private void handleEvent(String event) {
         Log.d(TAG, "handleEvent: " + event);
 
-        if (event.length() == 0) {
+        if (event.isEmpty()) {
             Log.d(TAG, "discard invalid event from USBD");
             return;
         }
 
         if (event.equals(EVENT_CABLE_CONNECTED)) {
-            mUsbService.handleUsbCableAttachment();
+            mHandler.sendEmptyMessage(UsbService.MSG_CABLE_ATTACHED);
         } else if (event.equals(EVENT_ENUMERATED)) {
-            mUsbService.handleUsbCableEnumerate();
+            mHandler.sendEmptyMessage(UsbService.MSG_ENUMERATED);
         } else if (event.equals(EVENT_CABLE_CONNECTED_FACTORY)) {
             sendUsbModeSwitchCmd(MODE_NGP);
         } else if (event.equals(EVENT_GET_DESCRIPTOR)) {
-            mUsbService.handleGetDescriptor();
+            mHandler.sendEmptyMessage(UsbService.MSG_GET_DESCRIPTOR);
         } else if (event.equals(EVENT_CABLE_DISCONNECTED)) {
-            mUsbService.handleUsbCableDetachment();
+            mHandler.sendEmptyMessage(UsbService.MSG_CABLE_DETACHED);
         } else if (event.equals(EVENT_ADB_ON)) {
-            mUsbService.handleADBOnOff(true);
+            mHandler.sendMessage(mHandler.obtainMessage(UsbService.MSG_ADB_CHANGE, 1, 0));
         } else if (event.equals(EVENT_ADB_OFF)) {
-            mUsbService.handleADBOnOff(false);
+            mHandler.sendMessage(mHandler.obtainMessage(UsbService.MSG_ADB_CHANGE, 0, 0));
         } else if (event.startsWith(EVENT_START_PREFIX)) {
-            mUsbService.handleStartService(event);
+            mHandler.sendMessage(mHandler.obtainMessage(UsbService.MSG_START_SERVICE, event));
         } else if (event.startsWith(EVENT_REQ_PREFIX)) {
-            mUsbService.handleUsbModeSwitchFromUsbd(event);
+            mHandler.sendMessage(mHandler.obtainMessage(UsbService.MSG_USBD_MODE_SWITCH, event));
+        } else if (event.contains(SWITCH_OK_POSTFIX)) {
+            mHandler.sendMessage(mHandler.obtainMessage(UsbService.MSG_MODE_SWITCH_COMPLETE, 1, 0));
+        } else if (event.contains(SWITCH_FAIL_POSTFIX)) {
+            mHandler.sendMessage(mHandler.obtainMessage(UsbService.MSG_MODE_SWITCH_COMPLETE, 0, 0));
         } else {
-            Log.i(TAG, "Assuming mode switch completed");
-            mUsbService.handleUsbModeSwitchComplete(event);
+            Log.e(TAG, "Got invalid event " + event);
         }
     }
 
@@ -112,8 +116,9 @@ public final class UsbListener implements Runnable
 
         try {
             usbdSocket = new LocalSocket();
-            LocalSocketAddress.Namespace fsNamespace = LocalSocketAddress.Namespace.FILESYSTEM;
-            LocalSocketAddress socketAddress = new LocalSocketAddress("/dev/socket/usbd", fsNamespace);
+            LocalSocketAddress socketAddress =
+                    new LocalSocketAddress("/dev/socket/usbd", LocalSocketAddress.Namespace.FILESYSTEM);
+
             usbdSocket.connect(socketAddress);
 
             InputStream usbdInputStream = usbdSocket.getInputStream();
@@ -124,20 +129,17 @@ public final class UsbListener implements Runnable
             while (true) {
                 int count = usbdInputStream.read(buffer);
 
-                if (count >= 0) {
-                    int i = 0;
-                    int k = 0;
+                if (count < 0) {
+                    /* failure */
+                    break;
+                }
 
-                    while (i < count) {
-                        if (buffer[i] == 0) {
-                            handleEvent(new String(buffer, k, i - k));
-                            k = i + 1;
-                        }
-
-                        i = i + 1;
+                int pos, start;
+                for (pos = 0, start = 0; pos < count; pos++) {
+                    if (buffer[pos] == 0) {
+                        handleEvent(new String(buffer, start, pos - start));
+                        start = pos + 1;
                     }
-                } else {
-                    break; //failure
                 }
             }
         } catch (IOException e) {
@@ -176,12 +178,10 @@ public final class UsbListener implements Runnable
         }
 
         String line = cmd;
-
         if (arg != null) {
-            line = cmd + arg + "\0";
-        } else {
-            line = cmd + "\0";
+            line += arg;
         }
+        line += '\0';
 
         try {
             mOutputStream.write(line.getBytes());
