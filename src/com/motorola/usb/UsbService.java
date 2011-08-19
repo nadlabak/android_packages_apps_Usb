@@ -841,14 +841,7 @@ public class UsbService extends Service
             toast += " ";
             toast += getString(R.string.usb_toast_phone_data_disabled);
         }
-        final String finalToast = toast;
-
-        mHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                Toast.makeText(UsbService.this, finalToast, Toast.LENGTH_LONG).show();
-            }
-        });
+        Toast.makeText(UsbService.this, toast, Toast.LENGTH_LONG).show();
     }
 
     private void setUsbModeFromUI(int mode)
