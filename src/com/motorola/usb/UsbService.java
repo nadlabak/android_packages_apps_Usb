@@ -70,7 +70,7 @@ public class UsbService extends Service
     public static final String ACTION_CABLE_DETACHED =
             "com.motorola.intent.action.USB_CABLE_DETACHED";
 
-    private static final String ACTION_ATCMD_CLOSED = 
+    private static final String ACTION_ATCMD_CLOSED =
             "com.motorola.intent.action.USB_ATCMD_DEV_CLOSED";
     private static final String ACTION_MTP_CLOSED =
             "com.motorola.intent.action.USB_MTP_EXIT_OK";

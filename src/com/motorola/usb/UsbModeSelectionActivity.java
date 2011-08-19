@@ -32,7 +32,7 @@ import android.widget.Toast;
 
 import com.android.internal.app.AlertActivity;
 
-public class UsbModeSelectionActivity extends AlertActivity 
+public class UsbModeSelectionActivity extends AlertActivity
         implements DialogInterface.OnClickListener
 {
     private static final String TAG = "UsbModeSelectionActivity";
