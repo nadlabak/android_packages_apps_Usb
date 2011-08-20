@@ -332,9 +332,10 @@ public class UsbService extends Service
         Log.d(TAG, "DeviceEnumPostAction()");
         ReadCurrentUsbMode();
 
-        switch (getUsbModeClass(mCurrentUsbMode)) {
+        switch (mCurrentUsbMode) {
             case USB_MODE_NGP:
                 StartAtCmdService();
+                StartMtpService();
                 break;
 
             case USB_MODE_MTP:
@@ -351,7 +352,6 @@ public class UsbService extends Service
 
             case USB_MODE_MODEM:
                 StartAtCmdService();
-                StartMtpService();
                 break;
         }
     }
@@ -360,10 +360,11 @@ public class UsbService extends Service
         Log.d(TAG, "DeviceEnumPreAction()");
         ReadCurrentUsbMode();
 
-        switch (getUsbModeClass(mCurrentUsbMode)) {
+        switch (mCurrentUsbMode) {
             case USB_MODE_NGP:
                 StartWaitDevNodeClosedTimer();
                 StopAtCmdService();
+                StopMtpService();
                 break;
 
             case USB_MODE_MTP:
@@ -384,7 +385,6 @@ public class UsbService extends Service
             case USB_MODE_MODEM:
                 StartWaitDevNodeClosedTimer();
                 StopAtCmdService();
-                StopMtpService();
                 break;
 
             default:
@@ -679,14 +679,6 @@ public class UsbService extends Service
         }
     }
 
-    private int getUsbModeClass(int mode) {
-        if (mode > USB_MODE_NONE) {
-            Log.w(TAG, "getUsbModeClass("+ String.valueOf(mode) +") Unknown mode !");
-            mode = mCurrentUsbMode;
-        }
-        return checkUsbMode(mode);
-    }
-
     private int checkUsbMode(int mode) {
         if (sModes.get(mode) == null) {
             Log.w(TAG, "checkUsbMode(" + String.valueOf(mode) + ") mode unknown !");
@@ -716,36 +708,23 @@ public class UsbService extends Service
         }
 
         ReadCurrentUsbMode();
-        int usbModeClass = getUsbModeClass(mCurrentUsbMode);
 
-        if (usbModeClass == USB_MODE_NGP) {
-            if (!mAtCmdServiceStopped) {
-                return;
-            }
-
+        if (mCurrentUsbMode == USB_MODE_NGP && mAtCmdServiceStopped && mMtpServiceStopped) {
             StopWaitDevNodeClosedTimer();
             mAtCmdServiceStopped = false;
+            mMtpServiceStopped = false;
             handleUsbEvent(EVENT_DEVNODE_CLOSED);
-        } else if (usbModeClass == USB_MODE_MTP) {
-            if (!mMtpServiceStopped) {
-                return;
-            }
-
+        } else if (mCurrentUsbMode == USB_MODE_MTP && mMtpServiceStopped) {
             StopWaitDevNodeClosedTimer();
             mMtpServiceStopped = false;
             handleUsbEvent(EVENT_DEVNODE_CLOSED);
-        } else if (usbModeClass == USB_MODE_RNDIS) {
-            if (!mRndisServiceStopped) {
-                return;
-            }
-
+        } else if (mCurrentUsbMode == USB_MODE_RNDIS && mRndisServiceStopped) {
             StopWaitDevNodeClosedTimer();
             mRndisServiceStopped = false;
             handleUsbEvent(EVENT_DEVNODE_CLOSED);
-        } else if ((usbModeClass == USB_MODE_MODEM) && mAtCmdServiceStopped && mMtpServiceStopped) {
+        } else if (mCurrentUsbMode == USB_MODE_MODEM && mAtCmdServiceStopped) {
             StopWaitDevNodeClosedTimer();
             mAtCmdServiceStopped = false;
-            mMtpServiceStopped = false;
             handleUsbEvent(EVENT_DEVNODE_CLOSED);
         }
     }
@@ -999,7 +978,7 @@ public class UsbService extends Service
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(ACTION_ATCMD_CLOSED);
         intentFilter.addAction(ACTION_MTP_CLOSED);
-        /* FIXME: RNDIS_CLOSED? */
+        intentFilter.addAction(ACTION_RNDIS_CLOSED);
         intentFilter.addAction(ACTION_MODE_SWITCH_FROM_UI);
         intentFilter.addAction(ACTION_MODE_SWITCH_FROM_ATCMD);
         intentFilter.addAction(ACTION_TETHERING_TOGGLED);
