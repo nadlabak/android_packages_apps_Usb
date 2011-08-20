@@ -514,12 +514,14 @@ public class UsbService extends Service
                     mIsSwitchFrom = USB_SWITCH_FROM_IDLE;
                 } else if (event == EVENT_ENUMERATION_OK) {
                     if (mIsSwitchFrom == USB_SWITCH_FROM_UI) {
-                        WriteNewUsbMode(mNewUsbMode);
-                        UsbModeSwitchSuccess();
+                        Log.d(TAG, "UI switched to mode: " + mNewUsbMode);
+                        UsbSettings.writeMode(this, mNewUsbMode, true);
                         UsbSettings.writeMode(this, -1, false);
+                        UsbModeSwitchSuccess();
                     } else if (mIsSwitchFrom == USB_SWITCH_FROM_USBD || mIsSwitchFrom == USB_SWITCH_FROM_AT_CMD) {
                         UsbSettings.writeMode(this, mNewUsbMode, false);
                     }
+                    /* we updated the saved config, need to re-fetch */
                     currentMode = getCurrentUsbMode();
 
                     if (mIsSwitchFrom != USB_SWITCH_FROM_IDLE) {
@@ -636,11 +638,6 @@ public class UsbService extends Service
         mMtpServiceStopped = false;
         mRndisServiceStopped = false;
         handleUsbEvent(EVENT_DEVNODE_CLOSED);
-    }
-
-    private void WriteNewUsbMode(int mode) {
-        Log.d(TAG, "WriteNewUsbMode(), New Usb Mode: " + mode);
-        UsbSettings.writeMode(this, mode, true);
     }
 
     private PendingIntent createUsbModeSelectionDialogIntent() {
