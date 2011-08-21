@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <resources>
+    <string name="usb_toast_connecting">Connexion USB : %s</string>
     <string name="usb_toast_phone_data_disabled">Les données du téléphone vont être désactivées.</string>
     <string name="usb_selection_notification_title">Connexion USB</string>
     <string name="usb_selection_notification_message">Sélectionner pour gérer votre connexion USB</string>
