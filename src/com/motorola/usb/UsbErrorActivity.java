@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2011 Skrilax_CZ
- * Decompilation of Motorola Usb.apk
+ * Based on Motorola Usb.apk
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,57 +26,52 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.util.Log;
 import com.android.internal.app.AlertActivity;
-import com.android.internal.app.AlertController.AlertParams;
 
 public class UsbErrorActivity extends AlertActivity
-	implements DialogInterface.OnClickListener
+        implements DialogInterface.OnClickListener
 {
-	private BroadcastReceiver mUsbErrorReceiver;
+    private static final String TAG = "UsbErrorActivity";
 
-	public UsbErrorActivity()
-	{
-		mUsbErrorReceiver = new BroadcastReceiver()
-		{
-			public void onReceive(Context context, Intent intent)
-			{
-				String action = intent.getAction();
-				Log.d("UsbErrorActivity", "onReceive(), received Intent -- " + action);
-				if (action.equals("com.motorola.intent.action.USB_CABLE_DETACHED"))
-					finish();
-			}
-		};
-	}
+    private BroadcastReceiver mUsbErrorReceiver;
 
-	public void onClick(DialogInterface dialog, int which)
-	{
-		finish();
-	}
+    public UsbErrorActivity() {
+        mUsbErrorReceiver = new BroadcastReceiver() {
+            public void onReceive(Context context, Intent intent) {
+                String action = intent.getAction();
+                Log.d(TAG, "onReceive(), received Intent -- " + action);
+                if (action.equals(UsbService.ACTION_CABLE_DETACHED)) {
+                    finish();
+                }
+            }
+        };
+    }
 
-	protected void onCreate(Bundle savedInstanceState)
-	{
-		super.onCreate(savedInstanceState);
-		
-		IntentFilter intentFilter = new IntentFilter();
-		intentFilter.addAction("com.motorola.intent.action.USB_CABLE_DETACHED");
-		
-		registerReceiver(mUsbErrorReceiver, intentFilter);
-		
-		mAlertParams.mIconId = com.android.internal.R.drawable.ic_dialog_usb;
-		mAlertParams.mTitle = getString(R.string.usb_connection);
-		
-		
-		mAlertParams.mMessage = getString(R.string.usb_error_message) + " " + 
-														getIntent().getStringExtra("USB_MODE_STRING") + 
-														getString(R.string.usb_period);
-		
-		mAlertParams.mPositiveButtonText = getString(R.string.usb_ok);
-		mAlertParams.mPositiveButtonListener = this;
-		setupAlert();
-	}
+    public void onClick(DialogInterface dialog, int which) {
+        finish();
+    }
 
-	protected void onDestroy()
-	{
-		super.onDestroy();
-		unregisterReceiver(mUsbErrorReceiver);
-	}
+    protected void onCreate(Bundle savedInstanceState)
+    {
+        super.onCreate(savedInstanceState);
+
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(UsbService.ACTION_CABLE_DETACHED);
+
+        registerReceiver(mUsbErrorReceiver, intentFilter);
+
+        mAlertParams.mIconId = com.android.internal.R.drawable.ic_dialog_usb;
+        mAlertParams.mTitle = getString(R.string.usb_connection);
+
+        mAlertParams.mMessage = getString(R.string.usb_error_message,
+                getIntent().getStringExtra(UsbService.EXTRA_ERROR_MODE_STRING));
+
+        mAlertParams.mPositiveButtonText = getString(com.android.internal.R.string.ok);
+        mAlertParams.mPositiveButtonListener = this;
+        setupAlert();
+    }
+
+    protected void onDestroy() {
+        super.onDestroy();
+        unregisterReceiver(mUsbErrorReceiver);
+    }
 }

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+    <string name="usb_toast_phone_data_disabled">Telefonens interna datalagring kommer att inaktiveras.</string>
+    <string name="usb_selection_notification_title">USB-anslutning</string>
+    <string name="usb_selection_notification_message">Välj för att hantera USB-anslutning</string>
+    <string name="usb_selection_notification_message_for_modem">Tryck för att koppla från och återaktivera telefonens interna datalagring</string>
+    <string name="usb_connection">USB-anslutning</string>
+    <string name="usb_mode_ngp">Portal &amp; Verktyg</string>
+    <string name="usb_mode_mtp">Windows Mediasynk</string>
+    <string name="usb_mode_msc">Minneskortsåtkomst</string>
+    <string name="usb_mode_modem">Telefon som Modem</string>
+    <string name="usb_mode_none">Endast Laddning</string>
+</resources>
