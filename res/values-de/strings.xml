@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <resources>
-    <string name="usb_toast_connecting">USB verbunden als %s.</string>
+    <string name="usb_toast_connecting">USB als \'%s\' verbunden.</string>
     <string name="usb_toast_phone_data_disabled">Telefondaten werden deaktiviert.</string>
     <string name="usb_selection_notification_title">USB-Verbindung</string>
     <string name="usb_selection_notification_message">Auswählen zum Verwalten Ihrer USB-Verbindung</string>
@@ -13,5 +13,5 @@
     <string name="usb_mode_rndis">USB-Tethering</string>
     <string name="usb_mode_modem">Telefon als Modem</string>
     <string name="usb_mode_none">Nur Laden</string>
-    <string name="usb_error_message">Die USB-Verbindung kann nicht zu %s geändert werden.</string>
+    <string name="usb_error_message">Die USB-Verbindung kann nicht zu \'%s\' geändert werden.</string>
 </resources>
