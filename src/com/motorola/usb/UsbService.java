@@ -39,6 +39,9 @@ import android.widget.Toast;
 
 import com.android.internal.telephony.ITelephony;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -219,6 +222,8 @@ public class UsbService extends Service
     private UsbListener mUsbListener;
     private Handler mHandler;
 
+    private File mCurrentStateFile;
+
     private UEventObserver mUEventObserver;
     private ITelephony mPhoneService;
     private IMountService mMountService;
@@ -362,6 +367,11 @@ public class UsbService extends Service
             mNotification.flags = Notification.FLAG_ONGOING_EVENT;
         }
 
+        String stateFileName = getResources().getString(R.string.current_usb_state_file_name);
+        if (stateFileName != null && !stateFileName.isEmpty()) {
+            mCurrentStateFile = new File(stateFileName);
+        }
+
         new Thread(mUsbListener, UsbListener.class.getName()).start();
         mUEventObserver.startObserving("DEVPATH=/devices/virtual/misc/usbnet_enable");
     }
@@ -415,6 +425,7 @@ public class UsbService extends Service
                         setUsbConnectionNotificationVisibility(true, false);
                         enableInternalDataConnectivity(currentMode != USB_MODE_MODEM);
                         emitReconfigurationIntent(true);
+                        updateUsbStateFile(true, currentMode);
                     }
 
                     if (mADBStatusChangeMissedNumber != 0) {
@@ -824,6 +835,39 @@ public class UsbService extends Service
         sendBroadcast(reconfigureIntent);
     }
 
+    private void updateUsbStateFile(boolean connected, int mode) {
+        String state;
+
+        if (mCurrentStateFile == null) {
+            return;
+        }
+
+        if (connected) {
+            state = getSwitchCommand(mode);
+            if (state == null) {
+                state = "unknown";
+            }
+        } else {
+            state = "disconnected";
+        }
+
+        FileOutputStream out = null;
+        try {
+            out = new FileOutputStream(mCurrentStateFile, false);
+            out.write(state.getBytes());
+        } catch (Exception e) {
+            Log.e(TAG, "Could not write current state to state file", e);
+        }
+
+        if (out != null) {
+            try {
+                out.close();
+            } catch (IOException e) {
+                /* ignore, not much we can do anyway */
+            }
+        }
+    }
+
     private void setUsbModeFromAtCmd(int mode) {
         Log.d(TAG, "setUsbModeFromAtCmd(" + getUsbModeString(mode) + ")");
 
@@ -897,6 +941,7 @@ public class UsbService extends Service
             enableInternalDataConnectivity(currentMode != USB_MODE_MODEM);
             sendBroadcast(new Intent(ACTION_CABLE_ATTACHED));
             emitReconfigurationIntent(true);
+            updateUsbStateFile(true, currentMode);
         } catch (IllegalStateException ex) {
             Log.d(TAG, "handleGetDescriptor(), show toast exception");
             SystemClock.sleep(500);
@@ -944,6 +989,7 @@ public class UsbService extends Service
             enableInternalDataConnectivity(true);
             sendBroadcast(new Intent(ACTION_CABLE_DETACHED));
             emitReconfigurationIntent(false);
+            updateUsbStateFile(false, -1);
         }
 
         handleUsbEvent(EVENT_CABLE_REMOVED);

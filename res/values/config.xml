@@ -21,4 +21,7 @@
 
     <!-- Whether a notification should be shown while USB is connected -->
     <bool name="show_connection_notification">true</bool>
+
+    <!-- If the currently active USB state should be written to a file, put file name here -->
+    <string name="current_usb_state_file_name" translatable="false"></string>
 </resources>
