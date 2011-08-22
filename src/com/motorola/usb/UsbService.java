@@ -25,6 +25,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.res.Resources;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.IBinder;
@@ -340,6 +341,8 @@ public class UsbService extends Service
     public void onCreate() {
         Log.d(TAG, "onCreate()");
         super.onCreate();
+
+        updateModeMapOverrides();
 
         UsbSettings.writeMode(this, -1, false);
 
@@ -1032,5 +1035,30 @@ public class UsbService extends Service
         }
 
         handleUsbEvent(EVENT_SWITCH);
+    }
+
+    private void updateModeMapOverrides() {
+        Resources res = getResources();
+        int[] modes = res.getIntArray(R.array.usb_mode_override_values);
+        String[] modeValues = res.getStringArray(R.array.usb_mode_override_modes);
+        String[] adbModeValues = res.getStringArray(R.array.usb_mode_override_adb_modes);
+
+        if (modes.length != modeValues.length || modes.length != adbModeValues.length) {
+            Log.e(TAG, "Found invalid USB mode overrides, ignoring.");
+            return;
+        }
+        if (modes.length == 0) {
+            return;
+        }
+
+        for (int i = 0; i < modes.length; i++) {
+            ModeInfo info = sModes.get(modes[i]);
+            if (info == null) {
+                Log.e(TAG, "Found invalid mode override value " + modes[i] + ", ignoring.");
+                continue;
+            }
+            info.mode = modeValues[i];
+            info.adbMode = adbModeValues[i];
+        }
     }
 }
