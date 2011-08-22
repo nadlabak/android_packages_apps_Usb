@@ -355,6 +355,13 @@ public class UsbService extends Service
         mediaIntentFilter.addDataScheme("file");
         registerReceiver(mUsbServiceReceiver, mediaIntentFilter);
 
+        if (getResources().getBoolean(R.bool.show_connection_notification)) {
+            mNotification = new Notification();
+            mNotification.icon = com.android.internal.R.drawable.stat_sys_data_usb;
+            mNotification.when = 0;
+            mNotification.flags = Notification.FLAG_ONGOING_EVENT;
+        }
+
         new Thread(mUsbListener, UsbListener.class.getName()).start();
         mUEventObserver.startObserving("DEVPATH=/devices/virtual/misc/usbnet_enable");
     }
@@ -779,14 +786,13 @@ public class UsbService extends Service
     private void setUsbConnectionNotificationVisibility(boolean visible, boolean forceDefaultSound)
     {
         Log.d(TAG, "setUsbConnectionNotificationVisibility()");
-        NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 
         if (mNotification == null) {
-            mNotification = new Notification();
-            mNotification.icon = com.android.internal.R.drawable.stat_sys_data_usb;
-            mNotification.when = 0;
-            mNotification.flags = Notification.FLAG_ONGOING_EVENT;
+            /* connection notification was disabled by config */
+            return;
         }
+
+        NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 
         if (forceDefaultSound) {
             mNotification.defaults = mNotification.defaults | Notification.DEFAULT_SOUND;

@@ -18,4 +18,7 @@
 
     <!-- Whether to allow mode switching while tethered or not -->
     <bool name="allow_mode_change_while_tethered">false</bool>
+
+    <!-- Whether a notification should be shown while USB is connected -->
+    <bool name="show_connection_notification">true</bool>
 </resources>
