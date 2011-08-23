@@ -417,6 +417,7 @@ public class UsbService extends Service
                     currentMode = getCurrentUsbMode();
 
                     if (mIsSwitchFrom != USB_SWITCH_FROM_IDLE) {
+                        showConnectedToast(currentMode);
                         setUsbConnectionNotificationVisibility(true, false);
                         enableInternalDataConnectivity(currentMode != USB_MODE_MODEM);
                         emitReconfigurationIntent(true);
@@ -898,7 +899,6 @@ public class UsbService extends Service
 
         if (mUsbState == USB_STATE_SERVICE_STARTUP) {
             mIsSwitchFrom = USB_SWITCH_FROM_UI;
-            showConnectedToast(mode);
             handleUsbEvent(EVENT_SWITCH);
         } else {
             Log.w(TAG, "not in USB_SERVICE_STARTUP_STATE state");
