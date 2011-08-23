@@ -290,7 +290,7 @@ public class UsbService extends Service
                     int index = intent.getIntExtra(EXTRA_MODE_SWITCH_MODE, -1);
                     Log.d(TAG, "onReceive(USB_MODE_SWITCH_FROM_UI) mode=" + index);
                     setUsbModeFromUI(index);
-                } else if(action.equals(ACTION_MODE_SWITCH_FROM_ATCMD)) {
+                } else if (action.equals(ACTION_MODE_SWITCH_FROM_ATCMD)) {
                     int index = intent.getIntExtra(EXTRA_MODE_SWITCH_MODE, -1);
                     Log.d(TAG, "onReceive(USB_MODE_SWITCH_FROM_ATCMD) mode=" + index);
                     if (index >= 0) {
@@ -381,7 +381,7 @@ public class UsbService extends Service
         Log.d(TAG, "handleUsbEvent(), Received event: " + event);
         Log.d(TAG, "Current Usb State: " + mUsbStateString[mUsbState]);
 
-	int currentMode = getCurrentUsbMode();
+        int currentMode = getCurrentUsbMode();
 
         switch (mUsbState) {
             case USB_STATE_IDLE:
@@ -440,10 +440,10 @@ public class UsbService extends Service
                 if (event == EVENT_START_SERVICE) {
                     deviceEnumPostAction();
                     mUsbState = USB_STATE_SERVICE_STARTUP;
-                } else if(event == EVENT_CABLE_REMOVED) {
+                } else if (event == EVENT_CABLE_REMOVED) {
                     mUsbState = USB_STATE_DETACH_DEVNOD_CLOSE;
                     deviceEnumPreAction();
-                } else if(event == EVENT_SWITCH) {
+                } else if (event == EVENT_SWITCH) {
                     mUsbState = USB_STATE_SWITCH_DEVNOD_CLOSE;
                     deviceEnumPreAction();
                 }
@@ -681,7 +681,7 @@ public class UsbService extends Service
             mRndisServiceStopped = false;
         }
 
-	int currentMode = getCurrentUsbMode();
+        int currentMode = getCurrentUsbMode();
 
         if (currentMode == USB_MODE_NGP && mAtCmdServiceStopped && mMtpServiceStopped) {
             stopWaitDevNodeClosedTimer();
@@ -930,7 +930,7 @@ public class UsbService extends Service
         mUsbCableAttached = true;
 
         try {
-	    int currentMode = getCurrentUsbMode();
+            int currentMode = getCurrentUsbMode();
             showConnectedToast(currentMode);
             setUsbConnectionNotificationVisibility(true, true);
             enableInternalDataConnectivity(currentMode != USB_MODE_MODEM);
@@ -953,7 +953,7 @@ public class UsbService extends Service
         boolean processEvent = false;
 
         switch (getCurrentUsbMode()) {
-	    case USB_MODE_NGP:
+            case USB_MODE_NGP:
                 processEvent = event.equals(UsbListener.EVENT_START_NGP);
                 break;
             case USB_MODE_MTP:
