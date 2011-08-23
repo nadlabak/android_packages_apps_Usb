@@ -355,14 +355,6 @@ public class UsbService extends Service
         intentFilter.addAction(ACTION_TETHERING_TOGGLED);
         registerReceiver(mUsbServiceReceiver, intentFilter);
 
-        IntentFilter mediaIntentFilter = new IntentFilter();
-        mediaIntentFilter.addAction(Intent.ACTION_MEDIA_UNMOUNTED);
-        mediaIntentFilter.addAction(Intent.ACTION_MEDIA_MOUNTED);
-        mediaIntentFilter.addAction(Intent.ACTION_MEDIA_SHARED);
-        mediaIntentFilter.addAction(Intent.ACTION_MEDIA_UNMOUNTABLE);
-        mediaIntentFilter.addDataScheme("file");
-        registerReceiver(mUsbServiceReceiver, mediaIntentFilter);
-
         if (getResources().getBoolean(R.bool.show_connection_notification)) {
             mNotification = new Notification();
             mNotification.icon = com.android.internal.R.drawable.stat_sys_data_usb;
