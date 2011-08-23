@@ -20,6 +20,8 @@ package com.motorola.usb;
 import android.net.LocalSocket;
 import android.net.LocalSocketAddress;
 import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.os.SystemClock;
 import android.util.Log;
 import java.io.IOException;
@@ -32,6 +34,7 @@ public final class UsbListener implements Runnable
 
     private OutputStream mOutputStream;
     private Handler mHandler;
+    private WriteCommandThread mWriteThread;
 
     public static final String EVENT_CABLE_CONNECTED = "cable_connected";
     public static final String EVENT_CABLE_CONNECTED_FACTORY = "cable_connected_factory";
@@ -74,6 +77,9 @@ public final class UsbListener implements Runnable
 
     public UsbListener(Handler handler) {
         mHandler = handler;
+        mWriteThread = new WriteCommandThread();
+
+        mWriteThread.start();
     }
 
     private void handleEvent(String event) {
@@ -122,7 +128,9 @@ public final class UsbListener implements Runnable
             usbdSocket.connect(socketAddress);
 
             InputStream usbdInputStream = usbdSocket.getInputStream();
-            mOutputStream = usbdSocket.getOutputStream();
+            synchronized (this) {
+                mOutputStream = usbdSocket.getOutputStream();
+            }
 
             byte[] buffer = new byte[100];
 
@@ -147,7 +155,7 @@ public final class UsbListener implements Runnable
         }
 
         //clean up
-        synchronized(this) {
+        synchronized (this) {
             if (mOutputStream != null) {
                 try {
                     mOutputStream.close();
@@ -200,10 +208,31 @@ public final class UsbListener implements Runnable
         }
     }
 
-    public void sendUsbModeSwitchCmd(String cmd) {
+    public void sendUsbModeSwitchCmd(final String cmd) {
         if (cmd != null) {
             Log.d(TAG, "received usb mode change command from UI: " + cmd);
-            writeCommand(cmd, null);
+
+            Handler handler = mWriteThread.mHandler;
+            handler.sendMessage(handler.obtainMessage(WriteCommandThread.MSG_WRITE, cmd));
+        }
+    }
+
+    private class WriteCommandThread extends Thread {
+        public Handler mHandler;
+        public static final int MSG_WRITE = 1;
+
+        public void run() {
+            Looper.prepare();
+
+            mHandler = new Handler() {
+                public void handleMessage(Message msg) {
+                    if (msg.what == MSG_WRITE) {
+                        writeCommand((String) msg.obj, null);
+                    }
+                }
+            };
+
+            Looper.loop();
         }
     }
 }

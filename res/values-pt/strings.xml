@@ -3,7 +3,7 @@
     <string name="usb_toast_phone_data_disabled">Conexão de dados do telefone será desabilitado.</string>
     <string name="usb_selection_notification_title">Conexão USB</string>
     <string name="usb_selection_notification_message">Selecione para gerenciar sua conexão USB</string>
-    <string name="usb_selection_notification_message_for_modem">Toque para desconectar e reativar conexão de dados interna do telefone</string>
+    <string name="usb_selection_notification_message_for_modem">Toque para desconectar e reativar a conexão de dados interna do telefone</string>
     <string name="usb_connection">Conexão USB</string>
     <string name="usb_mode_ngp">Portal &amp; Ferramentas</string>
     <string name="usb_mode_mtp">Sincronização Windows Media</string>
