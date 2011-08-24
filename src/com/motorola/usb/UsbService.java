@@ -490,8 +490,9 @@ public class UsbService extends Service
 
                     if (mIsSwitchFrom == USB_SWITCH_FROM_UI
                             || mIsSwitchFrom == USB_SWITCH_FROM_AT_CMD
-                            || mIsSwitchFrom == USB_SWITCH_FROM_USBD
-                            || mIsSwitchFrom == USB_SWITCH_FROM_ADB) {
+                            || mIsSwitchFrom == USB_SWITCH_FROM_USBD) {
+                        mUsbListener.sendUsbModeSwitchCmd(getSwitchCommand(mNewUsbMode));
+                    } else if (mIsSwitchFrom == USB_SWITCH_FROM_ADB) {
                         mUsbListener.sendUsbModeSwitchCmd(getSwitchCommand(currentMode));
                     }
                 }
