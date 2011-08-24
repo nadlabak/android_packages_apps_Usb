@@ -145,7 +145,6 @@ public final class UsbListener implements Runnable
                 throw new IOException("Unexpected end of stream");
             }
 
-	    Log.e(TAG, "Read " + count + " bytes");
             int pos, start;
             for (pos = 0, start = 0; pos < count; pos++) {
                 if (buffer[pos] == 0) {
@@ -157,7 +156,6 @@ public final class UsbListener implements Runnable
     }
 
     private synchronized void closeSocket() {
-	Log.e(TAG, "closeSocket()");
         try {
             if (mOutputStream != null) {
                 mOutputStream.close();
@@ -174,7 +172,6 @@ public final class UsbListener implements Runnable
     }
 
     private synchronized void writeCommand(String cmd, String arg) {
-	Log.e(TAG, "writeCommand " + cmd);
         if (mOutputStream == null) {
             Log.e(TAG, "No connection to usbd");
             return;
@@ -185,6 +182,8 @@ public final class UsbListener implements Runnable
             line += arg;
         }
         line += '\0';
+
+        Log.d(TAG, "Writing command " + line + " to usbd");
 
         try {
             mOutputStream.write(line.getBytes());
@@ -213,7 +212,7 @@ public final class UsbListener implements Runnable
     }
 
     public synchronized void stop() {
-	Log.e(TAG, "stop()");
+        Log.d(TAG, "Stopping...");
         mRunning = false;
         if (mSocket != null) {
             try {
