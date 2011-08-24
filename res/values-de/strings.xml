@@ -14,4 +14,6 @@
     <string name="usb_mode_modem">Telefon als Modem</string>
     <string name="usb_mode_none">Nur Laden</string>
     <string name="usb_error_message">Die USB-Verbindung kann nicht zu \'%s\' geändert werden.</string>
+    <string name="preparing_ums">Die Speicherkarte wird vorbereitet.</string>
+    <string name="ums_ready">Auf die Speicherkarte kann nun via USB zugegriffen werden.</string>
 </resources>

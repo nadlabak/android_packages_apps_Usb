@@ -35,6 +35,7 @@ import android.os.RemoteException;
 import android.os.ServiceManager;
 import android.os.SystemClock;
 import android.os.UEventObserver;
+import android.os.storage.StorageEventListener;
 import android.os.storage.StorageManager;
 import android.util.Log;
 import android.widget.Toast;
@@ -212,6 +213,7 @@ public class UsbService extends Service
     private boolean mRndisServiceStopped = false;
     private int mADBStatusChangeMissedNumber = 0;
     private boolean mMediaMountedReceiverRegistered = false;
+    private boolean mPreparingUms = false;
 
     private UsbListener mUsbListener;
     private File mCurrentStateFile;
@@ -224,6 +226,7 @@ public class UsbService extends Service
     private NotificationManager mNotifManager;
 
     private Handler mStorageHandler;
+    private Toast mConnectedToast;
 
     private Handler mHandler = new Handler() {
         @Override
@@ -290,6 +293,21 @@ public class UsbService extends Service
             } else if (action.equals(ACTION_TETHERING_TOGGLED)) {
                 int state = intent.getIntExtra(EXTRA_TETHERING_STATE, 0);
                 handleUsbTetheringToggled(state != 0);
+            }
+        }
+    };
+
+    private StorageEventListener mStorageListener = new StorageEventListener() {
+        @Override
+        public void onStorageStateChanged(String path, String oldState, String newState) {
+            if (mPreparingUms && newState.equals(Environment.MEDIA_SHARED)) {
+                mHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(UsbService.this, R.string.ums_ready, Toast.LENGTH_SHORT).show();
+                        mPreparingUms = false;
+                    }
+                });
             }
         }
     };
@@ -371,6 +389,8 @@ public class UsbService extends Service
         storageThread.start();
         mStorageHandler = new Handler(storageThread.getLooper());
 
+        mStorageManager.registerListener(mStorageListener);
+
         mUsbListener = new UsbListener(mHandler);
         new Thread(mUsbListener, UsbListener.class.getName()).start();
         mUEventObserver.startObserving("DEVPATH=/devices/virtual/misc/usbnet_enable");
@@ -378,8 +398,9 @@ public class UsbService extends Service
 
     @Override
     public void onDestroy() {
-        onDestroy();
         unregisterReceiver(mUsbServiceReceiver);
+        mStorageManager.unregisterListener(mStorageListener);
+        super.onDestroy();
     }
 
     private synchronized void handleUsbEvent(int event) {
@@ -444,7 +465,7 @@ public class UsbService extends Service
             case USB_STATE_SERVICE_STARTUP:
                 if (event == EVENT_START_SERVICE) {
                     deviceEnumPostAction();
-                    mUsbState = USB_STATE_SERVICE_STARTUP;
+                    showConnectedToast(currentMode);
                 } else if (event == EVENT_CABLE_REMOVED) {
                     mUsbState = USB_STATE_DETACH_DEVNOD_CLOSE;
                     deviceEnumPreAction();
@@ -740,6 +761,7 @@ public class UsbService extends Service
     private void changeMassStorageMode(final boolean enable) {
         Log.d(TAG, "changeMassStorageMode(), enable " + enable);
 
+        mPreparingUms = enable;
         mStorageHandler.post(new Runnable() {
             @Override
             public void run() {
@@ -865,11 +887,24 @@ public class UsbService extends Service
         }
 
         String toast = getString(R.string.usb_toast_connecting, getString(resId));
-        if (getCurrentUsbMode() == USB_MODE_MODEM) {
+        int currentMode = getCurrentUsbMode();
+
+        if (currentMode == USB_MODE_MODEM) {
             toast += " ";
             toast += getString(R.string.usb_toast_phone_data_disabled);
+        } else if (currentMode == USB_MODE_MSC && mPreparingUms) {
+            toast += " ";
+            toast += getString(R.string.preparing_ums);
         }
-        Toast.makeText(UsbService.this, toast, Toast.LENGTH_LONG).show();
+
+        if (mConnectedToast == null) {
+            mConnectedToast = Toast.makeText(UsbService.this, toast, Toast.LENGTH_LONG);
+        } else {
+            mConnectedToast.cancel();
+            mConnectedToast.setText(toast);
+        }
+
+        mConnectedToast.show();
     }
 
     private void setUsbModeFromUI(int mode) {
@@ -909,18 +944,12 @@ public class UsbService extends Service
         Log.d(TAG, "handleGetDescriptor()");
         mUsbCableAttached = true;
 
-        try {
-            int currentMode = getCurrentUsbMode();
-            showConnectedToast(currentMode);
-            setUsbConnectionNotificationVisibility(true, true);
-            enableInternalDataConnectivity(currentMode != USB_MODE_MODEM);
-            sendBroadcast(new Intent(ACTION_CABLE_ATTACHED));
-            emitReconfigurationIntent(true);
-            updateUsbStateFile(true, currentMode);
-        } catch (IllegalStateException ex) {
-            Log.d(TAG, "handleGetDescriptor(), show toast exception");
-            SystemClock.sleep(500);
-        }
+        int currentMode = getCurrentUsbMode();
+        setUsbConnectionNotificationVisibility(true, true);
+        enableInternalDataConnectivity(currentMode != USB_MODE_MODEM);
+        sendBroadcast(new Intent(ACTION_CABLE_ATTACHED));
+        emitReconfigurationIntent(true);
+        updateUsbStateFile(true, currentMode);
     }
 
     public void handleStartService(String event) {
