@@ -28,6 +28,7 @@ import android.content.IntentFilter;
 import android.content.res.Resources;
 import android.os.Environment;
 import android.os.Handler;
+import android.os.HandlerThread;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.RemoteException;
@@ -222,6 +223,8 @@ public class UsbService extends Service
     private StorageManager mStorageManager;
     private NotificationManager mNotifManager;
 
+    private Handler mStorageHandler;
+
     private Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
@@ -363,6 +366,10 @@ public class UsbService extends Service
         mPhoneService = ITelephony.Stub.asInterface(ServiceManager.getService(TELEPHONY_SERVICE));
         mStorageManager = (StorageManager) getSystemService(STORAGE_SERVICE);
         mNotifManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+
+        HandlerThread storageThread = new HandlerThread("Usb switching storage handler");
+        storageThread.start();
+        mStorageHandler = new Handler(storageThread.getLooper());
 
         mUsbListener = new UsbListener(mHandler);
         new Thread(mUsbListener, UsbListener.class.getName()).start();
@@ -730,15 +737,20 @@ public class UsbService extends Service
         return -1;
     }
 
-    private void changeMassStorageMode(boolean enable) {
+    private void changeMassStorageMode(final boolean enable) {
         Log.d(TAG, "changeMassStorageMode(), enable " + enable);
 
-        if (enable) {
-            mStorageManager.enableUsbMassStorage();
-        } else {
-            mStorageManager.disableUsbMassStorage();
-        }
-        sendBroadcast(new Intent(enable ? ACTION_ENTER_MSC : ACTION_EXIT_MSC));
+        mStorageHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                if (enable) {
+                    mStorageManager.enableUsbMassStorage();
+                } else {
+                    mStorageManager.disableUsbMassStorage();
+                }
+                sendBroadcast(new Intent(enable ? ACTION_ENTER_MSC : ACTION_EXIT_MSC));
+            }
+        });
     }
 
     private void enableInternalDataConnectivity(boolean enable) {
