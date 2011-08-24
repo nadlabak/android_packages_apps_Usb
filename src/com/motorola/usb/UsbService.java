@@ -442,9 +442,11 @@ public class UsbService extends Service
                     currentMode = getCurrentUsbMode();
 
                     if (mIsSwitchFrom != USB_SWITCH_FROM_IDLE) {
-                        showConnectedToast(currentMode);
-                        setUsbConnectionNotificationVisibility(true, false);
-                        enableInternalDataConnectivity(currentMode != USB_MODE_MODEM);
+                        if (mIsSwitchFrom != USB_SWITCH_FROM_ADB) {
+                            showConnectedToast(currentMode);
+                            setUsbConnectionNotificationVisibility(true, false);
+                            enableInternalDataConnectivity(currentMode != USB_MODE_MODEM);
+                        }
                         emitReconfigurationIntent(true);
                         updateUsbStateFile(true, currentMode);
                     }
@@ -488,9 +490,8 @@ public class UsbService extends Service
 
                     if (mIsSwitchFrom == USB_SWITCH_FROM_UI
                             || mIsSwitchFrom == USB_SWITCH_FROM_AT_CMD
-                            || mIsSwitchFrom == USB_SWITCH_FROM_USBD) {
-                        mUsbListener.sendUsbModeSwitchCmd(getSwitchCommand(mNewUsbMode));
-                    } else if (mIsSwitchFrom == USB_SWITCH_FROM_ADB) {
+                            || mIsSwitchFrom == USB_SWITCH_FROM_USBD
+                            || mIsSwitchFrom == USB_SWITCH_FROM_ADB) {
                         mUsbListener.sendUsbModeSwitchCmd(getSwitchCommand(currentMode));
                     }
                 }
