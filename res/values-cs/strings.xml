@@ -14,4 +14,6 @@
     <string name="usb_mode_modem">Telefon jako modem</string>
     <string name="usb_mode_none">Pouze nabíjení</string>
     <string name="usb_error_message">USB připojení se nepodařilo změnit na \'%s\'.</string>
+    <string name="preparing_ums">SD karta se připravuje.</string>
+    <string name="ums_ready">SD karta je nyní přístupná přes USB.</string>
 </resources>
