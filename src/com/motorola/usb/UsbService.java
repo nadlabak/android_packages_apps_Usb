@@ -225,6 +225,7 @@ public class UsbService extends Service
     private StorageManager mStorageManager;
     private NotificationManager mNotifManager;
 
+    private HandlerThread mStorageThread;
     private Handler mStorageHandler;
     private Toast mConnectedToast;
 
@@ -385,9 +386,9 @@ public class UsbService extends Service
         mStorageManager = (StorageManager) getSystemService(STORAGE_SERVICE);
         mNotifManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 
-        HandlerThread storageThread = new HandlerThread("Usb switching storage handler");
-        storageThread.start();
-        mStorageHandler = new Handler(storageThread.getLooper());
+        mStorageThread = new HandlerThread("Usb switching storage handler");
+        mStorageThread.start();
+        mStorageHandler = new Handler(mStorageThread.getLooper());
 
         mStorageManager.registerListener(mStorageListener);
 
@@ -398,6 +399,8 @@ public class UsbService extends Service
 
     @Override
     public void onDestroy() {
+        mUsbListener.stop();
+        mStorageThread.quit();
         unregisterReceiver(mUsbServiceReceiver);
         mStorageManager.unregisterListener(mStorageListener);
         super.onDestroy();
@@ -490,8 +493,9 @@ public class UsbService extends Service
 
                     if (mIsSwitchFrom == USB_SWITCH_FROM_UI
                             || mIsSwitchFrom == USB_SWITCH_FROM_AT_CMD
-                            || mIsSwitchFrom == USB_SWITCH_FROM_USBD
-                            || mIsSwitchFrom == USB_SWITCH_FROM_ADB) {
+                            || mIsSwitchFrom == USB_SWITCH_FROM_USBD) {
+                        mUsbListener.sendUsbModeSwitchCmd(getSwitchCommand(mNewUsbMode));
+                    } else if (mIsSwitchFrom == USB_SWITCH_FROM_ADB) {
                         mUsbListener.sendUsbModeSwitchCmd(getSwitchCommand(currentMode));
                     }
                 }
