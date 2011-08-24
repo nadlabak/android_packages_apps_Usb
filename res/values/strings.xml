@@ -14,4 +14,6 @@
     <string name="usb_mode_modem">Phone as Modem</string>
     <string name="usb_mode_none">Charge Only</string>
     <string name="usb_error_message">The USB connection cannot be changed to %s.</string>
+    <string name="preparing_ums">Preparing SD card.</string>
+    <string name="ums_ready">The SD card is now shared via USB.</string>
 </resources>
