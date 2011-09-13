@@ -10,4 +10,10 @@
     <string name="usb_mode_msc">Acesso ao Cartão de Memória</string>
     <string name="usb_mode_modem">Telefone como Modem</string>
     <string name="usb_mode_none">Somente Carregar</string>
+    <string name="usb_toast_connecting">USB conectado como %s.</string>
+    <string name="usb_tethered_message">Modo de conexão USB não pode ser alterado enquanto o compartilhamento de conexão via USB estiver ativo</string>
+    <string name="usb_mode_rndis">Rede USB</string>
+    <string name="usb_error_message">A conexão USB não pode ser alterada para %s.</string>
+    <string name="preparing_ums">Preparando cartão SD</string>
+    <string name="ums_ready">O cartão SD está sendo compartilhado agora via USB.</string>
 </resources>
