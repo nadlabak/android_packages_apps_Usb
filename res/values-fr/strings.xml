@@ -5,7 +5,7 @@
     <string name="usb_selection_notification_title">Connexion USB</string>
     <string name="usb_selection_notification_message">Sélectionner pour gérer votre connexion USB</string>
     <string name="usb_selection_notification_message_for_modem">Touchez pour obtenir plus de détails et vous déconnecter</string>
-    <string name="usb_tethered_message">Le mode de connexion USB ne peut être modifié pendant l&apos;utilisation de USB tethering</string>
+    <string name="usb_tethered_message">Le mode de connexion USB ne peut être modifié pendant l\'utilisation de USB tethering</string>
     <string name="usb_connection">Connexion USB</string>
     <string name="usb_mode_ngp">Portail &amp; outils</string>
     <string name="usb_mode_mtp">Synchronisation Windows Media</string>
