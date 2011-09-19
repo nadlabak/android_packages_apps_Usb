@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+    <string name="usb_toast_connecting">USB bude pripojené ako \'%s\'.</string>
+    <string name="usb_toast_phone_data_disabled">Dátové pripojenie v telefóne bude vypnuté.</string>
+    <string name="usb_selection_notification_title">USB pripojenie</string>
+    <string name="usb_selection_notification_message">Vyberte pre správu USB pripojenia</string>
+    <string name="usb_selection_notification_message_for_modem">Vyberte pre odpojenie a reaktiváciu dátového pripojenia v telefóne</string>
+    <string name="usb_tethered_message">Mód USB pripojenia nie je možné meniť kým je USB tethering aktívne.</string>
+    <string name="usb_connection">USB pripojenie</string>
+    <string name="usb_mode_ngp">Portál &amp; Nástroje</string>
+    <string name="usb_mode_mtp">Windows Média Synch</string>
+    <string name="usb_mode_msc">Prístup k pamäťovej karte</string>
+    <string name="usb_mode_rndis">USB tethering</string>
+    <string name="usb_mode_modem">Telefón ako modem</string>
+    <string name="usb_mode_none">Len nabíjanie</string>
+    <string name="usb_error_message">USB pripojenie sa nepodarilo zmeniť na \'%s\'.</string>
+    <string name="preparing_ums">SD karta sa pripravuje.</string>
+    <string name="ums_ready">SD karta je teraz prístupná cez USB.</string>
+</resources>
