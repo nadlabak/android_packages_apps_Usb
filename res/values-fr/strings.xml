@@ -13,6 +13,7 @@
     <string name="usb_mode_rndis">Réseau USB</string>
     <string name="usb_mode_modem">Téléphone en tant que modem</string>
     <string name="usb_mode_none">Chargement uniquement</string>
+    <string name="usb_error_message">La connexion USB ne peut pas être changée en %s.</string>
     <string name="preparing_ums">Préparation de la carte SD...</string>
     <string name="ums_ready">La carte SD est maintenant accessible par USB.</string>
 </resources>
