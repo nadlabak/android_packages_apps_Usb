@@ -181,9 +181,10 @@ public final class UsbListener implements Runnable
         if (arg != null) {
             line += arg;
         }
-        line += '\0';
 
         Log.d(TAG, "Writing command " + line + " to usbd");
+
+        line += '\0';
 
         try {
             mOutputStream.write(line.getBytes());
