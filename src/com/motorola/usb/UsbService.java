@@ -795,7 +795,7 @@ public class UsbService extends Service
             } else {
                 mPhoneService.disableDataConnectivity();
             }
-        } catch (RemoteException e) {
+        } catch (Exception e) {
             Log.d(TAG, "Switching data connectivity failed", e);
         }
     }
