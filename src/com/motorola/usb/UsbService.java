@@ -908,13 +908,10 @@ public class UsbService extends Service
             toast += getString(R.string.preparing_ums);
         }
 
-        if (mConnectedToast == null) {
-            mConnectedToast = Toast.makeText(UsbService.this, toast, Toast.LENGTH_LONG);
-        } else {
+        if (mConnectedToast != null) {
             mConnectedToast.cancel();
-            mConnectedToast.setText(toast);
         }
-
+        mConnectedToast = Toast.makeText(UsbService.this, toast, Toast.LENGTH_LONG);
         mConnectedToast.show();
     }
 
