@@ -26,6 +26,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Resources;
+import android.hardware.usb.UsbManager;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -47,7 +48,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -62,8 +65,6 @@ public class UsbService extends Service
             "com.motorola.intent.action.USB_MODE_SWITCH_FROM_UI";
     public static final String ACTION_MODE_SWITCH_FROM_ATCMD =
             "com.motorola.intent.action.USB_MODE_SWITCH_FROM_ATCMD";
-    public static final String ACTION_TETHERING_TOGGLED =
-            "com.motorola.intent.action.USB_TETHERING_TOGGLED";
     public static final String ACTION_CABLE_ATTACHED =
             "com.motorola.intent.action.USB_CABLE_ATTACHED";
     public static final String ACTION_CABLE_DETACHED =
@@ -74,6 +75,8 @@ public class UsbService extends Service
             "com.motorola.intent.action.USB_MTP_EXIT_OK";
     private static final String ACTION_RNDIS_CLOSED =
             "com.motorola.intent.action.USB_RNDIS_EXIT_OK";
+    private static final String ACTION_USB_REQUEST_RECONFIGURE =
+            "com.android.internal.usb.request_reconfigure";
 
     /* intent actions used for sending to other services */
     public static final String ACTION_LAUNCH_MTP =
@@ -100,6 +103,10 @@ public class UsbService extends Service
     public static final String EXTRA_ERROR_MODE_STRING = "USB_MODE_STRING";
     public static final String EXTRA_TETHERING_STATE = "state";
     private static final String EXTRA_RECONFIGURE_CONNECTED = "connected";
+    private static final String EXTRA_RECONFIGURE_CONFIGURED = "configured";
+    private static final String EXTRA_RECONFIGURE_FUNCTIONS = "functions";
+    private static final String EXTRA_RECONFIGURE_REQ_PERMANENT = "permanent";
+    private static final String EXTRA_RECONFIGURE_REQ_ADB = "enable_adb";
 
     /*
      * Mode information
@@ -293,9 +300,11 @@ public class UsbService extends Service
                 if (index >= 0) {
                     setUsbModeFromAtCmd(index);
                 }
-            } else if (action.equals(ACTION_TETHERING_TOGGLED)) {
-                int state = intent.getIntExtra(EXTRA_TETHERING_STATE, 0);
-                handleUsbTetheringToggled(state != 0);
+            } else if (action.equals(ACTION_USB_REQUEST_RECONFIGURE)) {
+                final String functions = intent.getStringExtra(EXTRA_RECONFIGURE_FUNCTIONS);
+                final boolean permanent = intent.getBooleanExtra(EXTRA_RECONFIGURE_REQ_PERMANENT, false);
+                final boolean adb = intent.getBooleanExtra(EXTRA_RECONFIGURE_REQ_ADB, mADBEnabled);
+                handleUsbReconfigureRequest(functions, permanent, adb);
             }
         }
     };
@@ -365,7 +374,7 @@ public class UsbService extends Service
         intentFilter.addAction(ACTION_RNDIS_CLOSED);
         intentFilter.addAction(ACTION_MODE_SWITCH_FROM_UI);
         intentFilter.addAction(ACTION_MODE_SWITCH_FROM_ATCMD);
-        intentFilter.addAction(ACTION_TETHERING_TOGGLED);
+        intentFilter.addAction(ACTION_USB_REQUEST_RECONFIGURE);
         registerReceiver(mUsbServiceReceiver, intentFilter);
 
         if (getResources().getBoolean(R.bool.show_connection_notification)) {
@@ -456,7 +465,7 @@ public class UsbService extends Service
                             setUsbConnectionNotificationVisibility(true, false);
                             enableInternalDataConnectivity(currentMode != USB_MODE_MODEM);
                         }
-                        emitReconfigurationIntent(true);
+                        emitReconfigurationIntent(true, true);
                         updateUsbStateFile(true, currentMode);
                     }
 
@@ -661,8 +670,7 @@ public class UsbService extends Service
         }
     }
 
-    private void sendUsblanUpIntent()
-    {
+    private void sendUsblanUpIntent() {
         Log.d(TAG, "sendUsblanUpIntent()");
 
         if (getCurrentUsbMode() == USB_MODE_NGP) {
@@ -838,9 +846,34 @@ public class UsbService extends Service
         }
     }
 
-    private void emitReconfigurationIntent(boolean connected) {
+    private void emitReconfigurationIntent(boolean connected, boolean configured) {
+        List<String> functions = new ArrayList<String>();
         Intent reconfigureIntent = new Intent(ACTION_USB_RECONFIGURED);
+
         reconfigureIntent.putExtra(EXTRA_RECONFIGURE_CONNECTED, connected);
+        reconfigureIntent.putExtra(EXTRA_RECONFIGURE_CONFIGURED, configured);
+
+        switch (getCurrentUsbMode()) {
+            case USB_MODE_NGP:
+            case USB_MODE_MTP:
+                functions.add(UsbManager.USB_FUNCTION_MTP);
+                break;
+            case USB_MODE_MSC:
+                functions.add(UsbManager.USB_FUNCTION_MASS_STORAGE);
+                break;
+            case USB_MODE_RNDIS:
+                functions.add(UsbManager.USB_FUNCTION_RNDIS);
+                break;
+        }
+        if (mADBEnabled) {
+            functions.add(UsbManager.USB_FUNCTION_ADB);
+        }
+
+        if (!functions.isEmpty()) {
+            reconfigureIntent.putExtra(EXTRA_RECONFIGURE_FUNCTIONS,
+                    TextUtils.join(",", functions));
+        }
+
         sendBroadcast(reconfigureIntent);
     }
 
@@ -959,7 +992,7 @@ public class UsbService extends Service
         setUsbConnectionNotificationVisibility(true, true);
         enableInternalDataConnectivity(currentMode != USB_MODE_MODEM);
         sendBroadcast(new Intent(ACTION_CABLE_ATTACHED));
-        emitReconfigurationIntent(true);
+        emitReconfigurationIntent(true, false);
         updateUsbStateFile(true, currentMode);
     }
 
@@ -1003,7 +1036,7 @@ public class UsbService extends Service
             setUsbConnectionNotificationVisibility(false, false);
             enableInternalDataConnectivity(true);
             sendBroadcast(new Intent(ACTION_CABLE_DETACHED));
-            emitReconfigurationIntent(false);
+            emitReconfigurationIntent(false, false);
             updateUsbStateFile(false, -1);
         }
 
@@ -1036,14 +1069,29 @@ public class UsbService extends Service
         handleUsbEvent(EVENT_SWITCH);
     }
 
-    private void handleUsbTetheringToggled(boolean enabled) {
-        if (enabled) {
-            mNewUsbMode = USB_MODE_RNDIS;
-            mIsSwitchFrom = USB_SWITCH_FROM_USBD;
-        } else {
+    private void handleUsbReconfigureRequest(final String functions, final boolean permanent, final boolean adb) {
+        Log.d(TAG, "Got reconfiguration request (functions " + functions + " permanent " + permanent + " adb " + adb + ")");
+
+        if (functions == null) {
             UsbSettings.writeMode(this, -1, false);
             mNewUsbMode = getCurrentUsbMode();
             mIsSwitchFrom = USB_SWITCH_FROM_UI;
+        } else {
+            if (functions.indexOf(UsbManager.USB_FUNCTION_MTP) >= 0) {
+                mNewUsbMode = USB_MODE_NGP;
+            } else if (functions.indexOf(UsbManager.USB_FUNCTION_RNDIS) >= 0) {
+                mNewUsbMode = USB_MODE_RNDIS;
+            } else if (functions.indexOf(UsbManager.USB_FUNCTION_MASS_STORAGE) >= 0) {
+                mNewUsbMode = USB_MODE_MSC;
+            } else {
+                return;
+            }
+
+            mADBEnabled = adb;
+            if (permanent) {
+                UsbSettings.writeMode(this, mNewUsbMode, true);
+            }
+            mIsSwitchFrom = USB_SWITCH_FROM_USBD;
         }
 
         handleUsbEvent(EVENT_SWITCH);
