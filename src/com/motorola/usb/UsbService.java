@@ -382,6 +382,7 @@ public class UsbService extends Service
             mNotification.icon = com.android.internal.R.drawable.stat_sys_data_usb;
             mNotification.when = 0;
             mNotification.flags = Notification.FLAG_ONGOING_EVENT;
+            mNotification.defaults &= ~Notification.DEFAULT_SOUND;
 
             Intent intent = new Intent();
             intent.setClass(this, UsbModeSelectionActivity.class);
@@ -462,7 +463,7 @@ public class UsbService extends Service
                     if (mIsSwitchFrom != USB_SWITCH_FROM_IDLE) {
                         if (mIsSwitchFrom != USB_SWITCH_FROM_ADB) {
                             showConnectedToast(currentMode);
-                            setUsbConnectionNotificationVisibility(true, false);
+                            setUsbConnectionNotificationVisibility(true);
                             enableInternalDataConnectivity(currentMode != USB_MODE_MODEM);
                         }
                         emitReconfigurationIntent(true, true);
@@ -813,8 +814,7 @@ public class UsbService extends Service
         return info != null ? info.name : null;
     }
 
-    private void setUsbConnectionNotificationVisibility(boolean visible, boolean forceDefaultSound)
-    {
+    private void setUsbConnectionNotificationVisibility(boolean visible) {
         Log.d(TAG, "setUsbConnectionNotificationVisibility()");
 
         if (mNotification == null) {
@@ -823,12 +823,6 @@ public class UsbService extends Service
         }
 
         if (visible) {
-            if (forceDefaultSound) {
-                mNotification.defaults = mNotification.defaults | Notification.DEFAULT_SOUND;
-            } else {
-                mNotification.defaults = mNotification.defaults & ~Notification.DEFAULT_SOUND;
-            }
-
             mNotification.tickerText = getString(R.string.usb_selection_notification_title);
 
             int messageRes = getCurrentUsbMode() == USB_MODE_MODEM
@@ -989,7 +983,7 @@ public class UsbService extends Service
         mUsbCableAttached = true;
 
         int currentMode = getCurrentUsbMode();
-        setUsbConnectionNotificationVisibility(true, true);
+        setUsbConnectionNotificationVisibility(true);
         enableInternalDataConnectivity(currentMode != USB_MODE_MODEM);
         sendBroadcast(new Intent(ACTION_CABLE_ATTACHED));
         emitReconfigurationIntent(true, false);
@@ -1033,7 +1027,7 @@ public class UsbService extends Service
 
         if (mUsbCableAttached) {
             mUsbCableAttached = false;
-            setUsbConnectionNotificationVisibility(false, false);
+            setUsbConnectionNotificationVisibility(false);
             enableInternalDataConnectivity(true);
             sendBroadcast(new Intent(ACTION_CABLE_DETACHED));
             emitReconfigurationIntent(false, false);
