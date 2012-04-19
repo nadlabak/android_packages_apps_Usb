@@ -5,9 +5,9 @@
     <string name="usb_selection_notification_message">USB bağlantınızı yönetmek için seçin</string>
     <string name="usb_selection_notification_message_for_modem">Bağlantıyı kesip dahili telefon verilerini yeniden etkinleştirmek için dokunun</string>
     <string name="usb_connection">USB bağlantısı</string>
-    <string name="usb_mode_ngp">Portal ve Araçlar</string>
+    <string name="usb_mode_acm_eth">Portal ve Araçlar</string>
     <string name="usb_mode_mtp">Windows Media Sync</string>
     <string name="usb_mode_msc">Hafıza Kartı Erişimi</string>
-    <string name="usb_mode_modem">Telefonu Modem Olarak Kullan</string>
-    <string name="usb_mode_none">Yalnızca Şarj Et</string>
+    <string name="usb_mode_acm">Telefonu Modem Olarak Kullan</string>
+    <string name="usb_mode_charge_only">Yalnızca Şarj Et</string>
 </resources>

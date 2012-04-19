@@ -44,39 +44,50 @@ public final class UsbListener implements Runnable
     public static final String EVENT_CABLE_CONNECTED = "cable_connected";
     public static final String EVENT_CABLE_CONNECTED_FACTORY = "cable_connected_factory";
     public static final String EVENT_CABLE_DISCONNECTED = "cable_disconnected";
-    public static final String EVENT_ENUMERATED = "usb_enumerated";
+    
     public static final String EVENT_GET_DESCRIPTOR = "get_descriptor";
+    public static final String EVENT_ENUMERATED = "usb_enumerated";
+    
     public static final String EVENT_ADB_ON = "usbd_adb_status_on";
     public static final String EVENT_ADB_OFF = "usbd_adb_status_off";
-    public static final String EVENT_START_NGP = "usbd_start_ngp";
-    public static final String EVENT_START_MTP = "usbd_start_ngp";
-    public static final String EVENT_START_MSC = "usbd_start_msc_mount";
+    
+    public static final String EVENT_START_ETH = "usbd_start_eth";
+    public static final String EVENT_START_ACM_ETH = "usbd_start_acm_eth";
+    public static final String EVENT_START_ACM_ETH_MTP = "usbd_start_acm_eth_mtp";
+    public static final String EVENT_START_MTP = "usbd_start_mtp";
+    public static final String EVENT_START_MSC = "usbd_start_msc";
     public static final String EVENT_START_ACM = "usbd_start_acm";
-    public static final String EVENT_START_MODEM = "usbd_start_modem";
     public static final String EVENT_START_RNDIS = "usbd_start_rndis";
     private static final String EVENT_START_PREFIX = "usbd_start_";
-    public static final String EVENT_REQ_NGP = "usbd_req_switch_ngp";
+    
+    public static final String EVENT_REQ_ETH = "usbd_req_switch_eth";
+    public static final String EVENT_REQ_ACM_ETH = "usbd_req_switch_acm_eth";
+    public static final String EVENT_REQ_ACM_ETH_MTP = "usbd_req_switch_acm_eth_mtp";
     public static final String EVENT_REQ_MTP = "usbd_req_switch_mtp";
     public static final String EVENT_REQ_MSC = "usbd_req_switch_msc";
     public static final String EVENT_REQ_ACM = "usbd_req_switch_acm";
-    public static final String EVENT_REQ_MODEM = "usbd_req_switch_modem";
     public static final String EVENT_REQ_RNDIS = "usbd_req_switch_rndis";
-    public static final String EVENT_REQ_NONE = "usbd_req_switch_none";
+    public static final String EVENT_REQ_CHARGE_ONLY = "usbd_req_switch_charge_only";
+    
     private static final String EVENT_REQ_PREFIX = "usbd_req_switch_";
     private static final String SWITCH_OK_POSTFIX = ":ok";
     private static final String SWITCH_FAIL_POSTFIX = ":fail";
 
-    public static final String MODE_NGP_ADB = "usb_mode_ngp_adb";
+    public static final String MODE_ACM_ETH_ADB = "usb_mode_acm_eth_adb";
+    public static final String MODE_ACM_ETH_ADB_MTP = "usb_mode_acm_eth_mtp_adb";
     public static final String MODE_MTP_ADB = "usb_mode_mtp_adb";
     public static final String MODE_MSC_ADB = "usb_mode_msc_adb";
     public static final String MODE_RNDIS_ADB = "usb_mode_rndis_adb";
     public static final String MODE_CHARGE_ADB = "usb_mode_charge_adb";
-    public static final String MODE_NGP = "usb_mode_ngp";
+    
+    public static final String MODE_ETH = "usb_mode_eth";
+    public static final String MODE_ACM_ETH = "usb_mode_acm_eth";
+    public static final String MODE_ACM_ETH_MTP = "usb_mode_acm_eth_mtp";
     public static final String MODE_MTP = "usb_mode_mtp";
     public static final String MODE_MSC = "usb_mode_msc";
     public static final String MODE_RNDIS = "usb_mode_rndis";
-    public static final String MODE_MODEM = "usb_mode_modem";
-    public static final String MODE_CHARGE = "usb_mode_charge_only";
+    public static final String MODE_ACM = "usb_mode_acm";
+    public static final String MODE_CHARGE_ONLY = "usb_mode_charge_only";
 
     public static final String CMD_UNLOAD_DRIVER = "usb_unload_driver";
 
@@ -103,7 +114,7 @@ public final class UsbListener implements Runnable
         } else if (event.equals(EVENT_ENUMERATED)) {
             mUiHandler.sendEmptyMessage(UsbService.MSG_ENUMERATED);
         } else if (event.equals(EVENT_CABLE_CONNECTED_FACTORY)) {
-            sendUsbModeSwitchCmd(MODE_NGP);
+            sendUsbModeSwitchCmd(MODE_ETH);
         } else if (event.equals(EVENT_GET_DESCRIPTOR)) {
             mUiHandler.sendEmptyMessage(UsbService.MSG_GET_DESCRIPTOR);
         } else if (event.equals(EVENT_CABLE_DISCONNECTED)) {

@@ -7,12 +7,12 @@
     <string name="usb_selection_notification_message_for_modem">輕觸即可中斷連線並重新啟用內部手機資料</string>
     <string name="usb_tethered_message">當進行 USB 網路共用時無法變更 USB 連線模式</string>
     <string name="usb_connection">USB 連線</string>
-    <string name="usb_mode_ngp">入口網站與工具</string>
+    <string name="usb_mode_acm_eth">入口網站與工具</string>
     <string name="usb_mode_mtp">Windows Media Sync</string>
     <string name="usb_mode_msc">記憶卡存取</string>
     <string name="usb_mode_rndis">USB 網路</string>
-    <string name="usb_mode_modem">將手機當數據機</string>
-    <string name="usb_mode_none">只充電</string>
+    <string name="usb_mode_acm">將手機當數據機</string>
+    <string name="usb_mode_charge_only">只充電</string>
     <string name="usb_error_message">無法將 USB 連線變更為「%s」</string>
     <string name="preparing_ums">正在準備 SD 卡。</string>
     <string name="ums_ready">SD 卡現正透過 USB 進行分享。</string>

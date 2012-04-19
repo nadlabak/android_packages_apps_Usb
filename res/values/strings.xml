@@ -7,12 +7,12 @@
     <string name="usb_selection_notification_message_for_modem">Touch to disconnect and re-enable internal phone data</string>
     <string name="usb_tethered_message">USB connection mode can not be changed while USB tethering is active</string>
     <string name="usb_connection">USB connection</string>
-    <string name="usb_mode_ngp">Portal &amp; Tools</string>
+    <string name="usb_mode_acm_eth">Portal &amp; Tools</string>
     <string name="usb_mode_mtp">Windows Media Sync</string>
     <string name="usb_mode_msc">Memory Card Access</string>
     <string name="usb_mode_rndis">USB Networking</string>
-    <string name="usb_mode_modem">Phone as Modem</string>
-    <string name="usb_mode_none">Charge Only</string>
+    <string name="usb_mode_acm">Phone as Modem</string>
+    <string name="usb_mode_charge_only">Charge Only</string>
     <string name="usb_error_message">The USB connection cannot be changed to %s.</string>
     <string name="preparing_ums">Preparing SD card.</string>
     <string name="ums_ready">The SD card is now shared via USB.</string>

@@ -7,12 +7,12 @@
     <string name="usb_selection_notification_message_for_modem">Touchez pour obtenir plus de détails et vous déconnecter</string>
     <string name="usb_tethered_message">Le mode USB ne peut être modifié lorsque le partage de connexion par USB est actif</string>
     <string name="usb_connection">Connexion USB</string>
-    <string name="usb_mode_ngp">Portail &amp; outils</string>
+    <string name="usb_mode_acm_eth">Portail &amp; outils</string>
     <string name="usb_mode_mtp">Synchronisation Windows Media</string>
     <string name="usb_mode_msc">Accès à la carte mémoire</string>
     <string name="usb_mode_rndis">Réseau USB</string>
-    <string name="usb_mode_modem">Téléphone en tant que modem</string>
-    <string name="usb_mode_none">Chargement uniquement</string>
+    <string name="usb_mode_acm">Téléphone en tant que modem</string>
+    <string name="usb_mode_charge_only">Chargement uniquement</string>
     <string name="usb_error_message">La connexion USB ne peut pas être changée en %s.</string>
     <string name="preparing_ums">Préparation de la carte SD...</string>
     <string name="ums_ready">La carte SD est maintenant accessible par USB.</string>

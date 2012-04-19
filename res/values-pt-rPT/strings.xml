@@ -5,9 +5,9 @@
     <string name="usb_selection_notification_message">Seleccionar para gerir a ligação USB</string>
     <string name="usb_selection_notification_message_for_modem">Toque para desligar e reactivar os dados internos de telefone</string>
     <string name="usb_connection">Ligação USB</string>
-    <string name="usb_mode_ngp">Portal e ferramentas</string>
+    <string name="usb_mode_acm_eth">Portal e ferramentas</string>
     <string name="usb_mode_mtp">Windows Media Sync</string>
     <string name="usb_mode_msc">Acesso a cartão de memória</string>
-    <string name="usb_mode_modem">Telefone como Modem</string>
-    <string name="usb_mode_none">Carregar apenas</string>
+    <string name="usb_mode_acm">Telefone como Modem</string>
+    <string name="usb_mode_charge_only">Carregar apenas</string>
 </resources>
