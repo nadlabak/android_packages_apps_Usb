@@ -5,11 +5,11 @@
     <string name="usb_selection_notification_message">Selecione para gerenciar sua conexão USB</string>
     <string name="usb_selection_notification_message_for_modem">Toque para desconectar e reativar a conexão de dados interna do telefone</string>
     <string name="usb_connection">Conexão USB</string>
-    <string name="usb_mode_ngp">Portal &amp; Ferramentas</string>
+    <string name="usb_mode_acm_eth">Portal &amp; Ferramentas</string>
     <string name="usb_mode_mtp">Sincronização Windows Media</string>
     <string name="usb_mode_msc">Acesso ao Cartão de Memória</string>
-    <string name="usb_mode_modem">Telefone como Modem</string>
-    <string name="usb_mode_none">Somente Carregar</string>
+    <string name="usb_mode_acm">Telefone como Modem</string>
+    <string name="usb_mode_charge_only">Somente Carregar</string>
     <string name="usb_toast_connecting">USB conectado como %s.</string>
     <string name="usb_tethered_message">Modo de conexão USB não pode ser alterado enquanto o compartilhamento de conexão via USB estiver ativo</string>
     <string name="usb_mode_rndis">Rede USB</string>

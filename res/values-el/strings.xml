@@ -5,9 +5,9 @@
     <string name="usb_selection_notification_message">Επιλέξτε το για να διαχειρίζεστε τη σύνδεση USB</string>
     <string name="usb_selection_notification_message_for_modem">Πατήστε το για να αποσυνδέσετε και να ενεργοποιήσετε ξανά τα εσωτερικά δεδομένα του τηλεφώνου</string>
     <string name="usb_connection">Σύνδεση USB</string>
-    <string name="usb_mode_ngp">Πύλη και εργαλεία</string>
+    <string name="usb_mode_acm_eth">Πύλη και εργαλεία</string>
     <string name="usb_mode_mtp">Συγχρονισμός πολυμέσων των Windows</string>
     <string name="usb_mode_msc">Πρόσβαση στην κάρτας μνήμης</string>
-    <string name="usb_mode_modem">Τηλέφωνο ως μόντεμ</string>
-    <string name="usb_mode_none">Μόνο φόρτιση</string>
+    <string name="usb_mode_acm">Τηλέφωνο ως μόντεμ</string>
+    <string name="usb_mode_charge_only">Μόνο φόρτιση</string>
 </resources>

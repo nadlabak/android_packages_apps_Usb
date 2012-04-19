@@ -7,12 +7,12 @@
     <string name="usb_selection_notification_message_for_modem">Tocca per disconnettere e riattivare i dati del telefono</string>
     <string name="usb_tethered_message">Non è possibile modificare la modalità di connessione USB finchè il tethering USB è attivo</string>
     <string name="usb_connection">Connessione USB</string>
-    <string name="usb_mode_ngp">Portale e strumenti</string>
+    <string name="usb_mode_acm_eth">Portale e strumenti</string>
     <string name="usb_mode_mtp">Windows Media Sync</string>
     <string name="usb_mode_msc">Accesso scheda di memoria</string>
     <string name="usb_mode_rndis">Rete USB</string>
-    <string name="usb_mode_modem">Telefono come modem</string>
-    <string name="usb_mode_none">Solo ricarica</string>
+    <string name="usb_mode_acm">Telefono come modem</string>
+    <string name="usb_mode_charge_only">Solo ricarica</string>
     <string name="usb_error_message">La connessione USB non può essere cambiata in %s.</string>
     <string name="preparing_ums">Preparando scheda SD.</string>
     <string name="ums_ready">La scheda SD è ora condivisa tramite USB.</string>

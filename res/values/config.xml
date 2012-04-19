@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <resources>
     <string-array name="usb_mode_entries" translatable="false">
-        <item>@string/usb_mode_ngp</item>
+        <item>@string/usb_mode_acm_eth</item>
         <item>@string/usb_mode_msc</item>
-        <item>@string/usb_mode_none</item>
+        <item>@string/usb_mode_charge_only</item>
     </string-array>
 
     <!-- Those values must match up with the mode constants in UsbService.java! -->

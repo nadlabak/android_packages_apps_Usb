@@ -5,9 +5,9 @@
     <string name="usb_selection_notification_message">选择在计算机上管理媒体和数据同步</string>
     <string name="usb_selection_notification_message_for_modem">点按断开连接后重新启用内部手机数据</string>
     <string name="usb_connection">USB连接</string>
-    <string name="usb_mode_ngp">摩托罗拉手机门户</string>
+    <string name="usb_mode_acm_eth">摩托罗拉手机门户</string>
     <string name="usb_mode_mtp">Windows媒体同步</string>
     <string name="usb_mode_msc">USB大容量存储</string>
-    <string name="usb_mode_modem">将手机用作调制解调器</string>
-    <string name="usb_mode_none">无</string>
+    <string name="usb_mode_acm">将手机用作调制解调器</string>
+    <string name="usb_mode_charge_only">无</string>
 </resources>
