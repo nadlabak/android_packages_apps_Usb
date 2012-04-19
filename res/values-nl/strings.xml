@@ -5,9 +5,9 @@
     <string name="usb_selection_notification_message">Selecteer dit om uw USB-verbinding te beheren</string>
     <string name="usb_selection_notification_message_for_modem">Raak aan om de verbinding te verbreken en de interne telefoongegevens opnieuw in te schakelen</string>
     <string name="usb_connection">USB-verbinding</string>
-    <string name="usb_mode_ngp">Portal en hulpprogramma\'s</string>
+    <string name="usb_mode_acm_eth">Portal en hulpprogramma\'s</string>
     <string name="usb_mode_mtp">Windows Media Sync</string>
     <string name="usb_mode_msc">De geheugenkaart openen</string>
-    <string name="usb_mode_modem">Telefoon als modem</string>
-    <string name="usb_mode_none">Alleen opladen</string>
+    <string name="usb_mode_acm">Telefoon als modem</string>
+    <string name="usb_mode_charge_only">Alleen opladen</string>
 </resources>

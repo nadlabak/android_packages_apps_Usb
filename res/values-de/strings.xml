@@ -7,12 +7,12 @@
     <string name="usb_selection_notification_message_for_modem">Für Details und zum Trennen der Verbindung berühren</string>
     <string name="usb_tethered_message">Die USB-Verbindung kann nicht geändert werden, während USB-Tethering aktiv ist.</string>
     <string name="usb_connection">USB-Verbindung</string>
-    <string name="usb_mode_ngp">Portal &amp; Tools</string>
+    <string name="usb_mode_acm_eth">Portal &amp; Tools</string>
     <string name="usb_mode_mtp">Synchronisierung von Windows Media</string>
     <string name="usb_mode_msc">Speicherkarten-Zugriff</string>
     <string name="usb_mode_rndis">USB-Tethering</string>
-    <string name="usb_mode_modem">Telefon als Modem</string>
-    <string name="usb_mode_none">Nur Laden</string>
+    <string name="usb_mode_acm">Telefon als Modem</string>
+    <string name="usb_mode_charge_only">Nur Laden</string>
     <string name="usb_error_message">Die USB-Verbindung kann nicht zu \'%s\' geändert werden.</string>
     <string name="preparing_ums">Die SD-Karte wird vorbereitet.</string>
     <string name="ums_ready">Auf die SD-Karte kann nun via USB zugegriffen werden.</string>

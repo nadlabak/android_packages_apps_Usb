@@ -7,12 +7,12 @@
     <string name="usb_selection_notification_message_for_modem">Косн. для откл. и открытия внутр. данных телефона</string>
     <string name="usb_tethered_message">Тип USB соединения не может быть изменён, т.к. активен режим USB-модема</string>
     <string name="usb_connection">USB подключение</string>
-    <string name="usb_mode_ngp">Портал телефона</string>
+    <string name="usb_mode_acm_eth">Портал телефона</string>
     <string name="usb_mode_mtp">Синхронизация Windows Media</string>
     <string name="usb_mode_msc">Доступ к карте памяти</string>
     <string name="usb_mode_rndis">USB сеть</string>
-    <string name="usb_mode_modem">Телефон как модем</string>
-    <string name="usb_mode_none">Зарядка</string>
+    <string name="usb_mode_acm">Телефон как модем</string>
+    <string name="usb_mode_charge_only">Зарядка</string>
     <string name="usb_error_message">The USB connection cannot be changed to %s.</string>
     <string name="preparing_ums">Подготовка SD карты.</string>
     <string name="ums_ready">SD карта доступна по USB.</string>

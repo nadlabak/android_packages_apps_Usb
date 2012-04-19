@@ -6,9 +6,9 @@
     <string name="usb_selection_notification_message">Select to manage your USB connection</string>
     <string name="usb_selection_notification_message_for_modem">Touch for details and to disconnect</string>
     <string name="usb_connection">USB connection</string>
-    <string name="usb_mode_ngp">Portal &amp; tools</string>
+    <string name="usb_mode_acm_eth">Portal &amp; tools</string>
     <string name="usb_mode_mtp">Windows media sync</string>
     <string name="usb_mode_msc">Memory card access</string>
-    <string name="usb_mode_modem">Phone as modem</string>
-    <string name="usb_mode_none">Charge only</string>
+    <string name="usb_mode_acm">Phone as modem</string>
+    <string name="usb_mode_charge_only">Charge only</string>
 </resources>

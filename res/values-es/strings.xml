@@ -5,9 +5,9 @@
     <string name="usb_selection_notification_message">Seleccionar para administrar la conexión USB</string>
     <string name="usb_selection_notification_message_for_modem">Toca para obtener más información y desconectar</string>
     <string name="usb_connection">Conexión USB</string>
-    <string name="usb_mode_ngp">Portal y herramientas</string>
+    <string name="usb_mode_acm_eth">Portal y herramientas</string>
     <string name="usb_mode_mtp">Sincronización de Windows Media</string>
     <string name="usb_mode_msc">Acceso a tarjeta de memoria</string>
-    <string name="usb_mode_modem">Teléfono como módem</string>
-    <string name="usb_mode_none">Solo carga</string>
+    <string name="usb_mode_acm">Teléfono como módem</string>
+    <string name="usb_mode_charge_only">Solo carga</string>
 </resources>

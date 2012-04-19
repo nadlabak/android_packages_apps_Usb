@@ -7,12 +7,12 @@
     <string name="usb_selection_notification_message_for_modem">Tryck för att koppla från och återaktivera telefonens interna datalagring</string>
     <string name="usb_tethered_message">Anslutningsläge för USB kan inte bytas medans USB-tethering är aktiv</string>
     <string name="usb_connection">USB-anslutning</string>
-    <string name="usb_mode_ngp">Portal &amp; Verktyg</string>
+    <string name="usb_mode_acm_eth">Portal &amp; Verktyg</string>
     <string name="usb_mode_mtp">Windows Mediasynk</string>
     <string name="usb_mode_msc">Minneskortsåtkomst</string>
     <string name="usb_mode_rndis">USB Nätverk</string>
-    <string name="usb_mode_modem">Telefon som Modem</string>
-    <string name="usb_mode_none">Endast Laddning</string>
+    <string name="usb_mode_acm">Telefon som Modem</string>
+    <string name="usb_mode_charge_only">Endast Laddning</string>
     <string name="usb_error_message">USB-anslutningen kan inte bytas till %s.</string>
     <string name="preparing_ums">Förbereder SD-kort.</string>
     <string name="ums_ready">SD-kortet är nu delat via USB.</string>
