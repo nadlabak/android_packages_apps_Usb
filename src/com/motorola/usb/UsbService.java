@@ -206,7 +206,6 @@ public class UsbService extends Service
 
     private HandlerThread mStorageThread;
     private Handler mStorageHandler;
-    private Toast mConnectedToast;
 
     private Handler mHandler = new Handler() {
         @Override
@@ -905,14 +904,14 @@ public class UsbService extends Service
             toast += getString(R.string.preparing_ums);
         }
 
-        if (mConnectedToast == null) {
-            mConnectedToast = Toast.makeText(UsbService.this, toast, Toast.LENGTH_LONG);
-        } else {
-            mConnectedToast.cancel();
-            mConnectedToast.setText(toast);
-        }
+        final String finalToast = toast;
 
-        mConnectedToast.show();
+        mHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                Toast.makeText(UsbService.this, finalToast, Toast.LENGTH_LONG).show();
+            }
+        });
     }
 
     private void setUsbModeFromUI(int mode) {
