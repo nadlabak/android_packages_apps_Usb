@@ -36,6 +36,7 @@ public class UsbModeSelectionActivity extends AlertActivity
         implements DialogInterface.OnClickListener
 {
     private static final String TAG = "UsbModeSelectionActivity";
+    private static final int USB_TETHERING = 6;
 
     private int currentUsbModeIndex;
     private int previousUsbModeIndex;
@@ -45,6 +46,7 @@ public class UsbModeSelectionActivity extends AlertActivity
 
     private DialogInterface.OnClickListener mUsbClickListener;
     private BroadcastReceiver mUsbModeSwitchReceiver;
+    private ConnectivityManager mConMan;
 
     public UsbModeSelectionActivity() {
         mUsbModeSwitchReceiver = new BroadcastReceiver() {
@@ -82,17 +84,25 @@ public class UsbModeSelectionActivity extends AlertActivity
 
         if (which == AlertDialog.BUTTON_POSITIVE) {
             if (currentUsbModeIndex != previousUsbModeIndex) {
-                Intent intent = new Intent(UsbService.ACTION_MODE_SWITCH_FROM_UI);
-                intent.putExtra(UsbService.EXTRA_MODE_SWITCH_MODE, currentUsbModeIndex);
-                sendBroadcast(intent);
+                if (currentUsbModeIndex == USB_TETHERING) {
+                    mConMan.tether("usb1");
+                } else {
+                    if (isUsbTethered()) {
+                        UsbSettings.writeMode(this, currentUsbModeIndex, true);
+                        mConMan.untether("usb1");
+                    } else {
+                        Intent intent = new Intent(UsbService.ACTION_MODE_SWITCH_FROM_UI);
+                        intent.putExtra(UsbService.EXTRA_MODE_SWITCH_MODE, currentUsbModeIndex);
+                        sendBroadcast(intent);
+                    }
+                }
             }
         }
     }
 
     private boolean isUsbTethered() {
-        ConnectivityManager cm = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
-        String[] tetheredIfaces = cm.getTetheredIfaces();
-        String[] tetherableRegexs = cm.getTetherableUsbRegexs();
+        String[] tetheredIfaces = mConMan.getTetheredIfaces();
+        String[] tetherableRegexs = mConMan.getTetherableUsbRegexs();
 
         for (String iface : tetheredIfaces) {
             for (String regex : tetherableRegexs) {
@@ -111,15 +121,11 @@ public class UsbModeSelectionActivity extends AlertActivity
 
         Resources res = getResources();
 
-        if (!res.getBoolean(R.bool.allow_mode_change_while_tethered) && isUsbTethered()) {
-            Toast.makeText(this, R.string.usb_tethered_message, Toast.LENGTH_LONG).show();
-            finish();
-        }
-
         mModeEntries = res.getStringArray(R.array.usb_mode_entries);
         mModeValues = res.getIntArray(R.array.usb_mode_values);
 
-        previousUsbModeIndex = UsbSettings.readCurrentMode(this);
+        mConMan = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
+        previousUsbModeIndex = isUsbTethered() ? USB_TETHERING : UsbSettings.readCurrentMode(this);
         currentUsbModeIndex = previousUsbModeIndex;
 
         mAlertParams.mIconId = com.android.internal.R.drawable.ic_dialog_usb;
