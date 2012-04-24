@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <resources>
     <string-array name="usb_mode_entries" translatable="false">
+        <item>@string/usb_tethering</item>
         <item>@string/usb_mode_acm_eth</item>
         <item>@string/usb_mode_msc</item>
         <item>@string/usb_mode_charge_only</item>
@@ -8,6 +9,7 @@
 
     <!-- Those values must match up with the mode constants in UsbService.java! -->
     <integer-array name="usb_mode_values" translatable="false">
+        <item>6</item>
         <item>0</item>
         <item>2</item>
         <item>5</item>
@@ -31,9 +33,6 @@
 
     <!-- Default mode USB if nothing was configured by the user yet -->
     <integer name="default_usb_mode">5</integer>
-
-    <!-- Whether to allow mode switching while tethered or not -->
-    <bool name="allow_mode_change_while_tethered">false</bool>
 
     <!-- Whether a notification should be shown while USB is connected -->
     <bool name="show_connection_notification">true</bool>

@@ -5,8 +5,8 @@
     <string name="usb_selection_notification_title">USB connection</string>
     <string name="usb_selection_notification_message">Select to manage your USB connection</string>
     <string name="usb_selection_notification_message_for_modem">Touch to disconnect and re-enable internal phone data</string>
-    <string name="usb_tethered_message">USB connection mode can not be changed while USB tethering is active</string>
     <string name="usb_connection">USB connection</string>
+    <string name="usb_tethering">USB Tethering</string>
     <string name="usb_mode_acm_eth">Portal &amp; Tools</string>
     <string name="usb_mode_mtp">Windows Media Sync</string>
     <string name="usb_mode_msc">Memory Card Access</string>
