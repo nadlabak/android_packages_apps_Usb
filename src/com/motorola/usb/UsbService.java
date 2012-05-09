@@ -27,6 +27,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Resources;
 import android.hardware.usb.UsbManager;
+import android.net.ConnectivityManager;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -41,8 +42,6 @@ import android.os.storage.StorageManager;
 import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
-
-import com.android.internal.telephony.ITelephony;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -193,6 +192,7 @@ public class UsbService extends Service
     private int mADBStatusChangeMissedNumber = 0;
     private boolean mMediaMountedReceiverRegistered = false;
     private boolean mPreparingUms = false;
+    private boolean mDisabledMobileData = false;
 
     private UsbListener mUsbListener;
     private File mCurrentStateFile;
@@ -200,7 +200,7 @@ public class UsbService extends Service
     private PendingIntent mModeSelectionIntent;
     private Timer mWaitForDevCloseTimer;
 
-    private ITelephony mPhoneService;
+    private ConnectivityManager mConnManager;
     private StorageManager mStorageManager;
     private NotificationManager mNotifManager;
 
@@ -358,7 +358,7 @@ public class UsbService extends Service
             mModeSelectionIntent = PendingIntent.getActivity(this, 0, intent, 0);
         }
 
-        mPhoneService = ITelephony.Stub.asInterface(ServiceManager.getService(TELEPHONY_SERVICE));
+        mConnManager = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
         mStorageManager = (StorageManager) getSystemService(STORAGE_SERVICE);
         mNotifManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 
@@ -767,14 +767,12 @@ public class UsbService extends Service
     private void enableInternalDataConnectivity(boolean enable) {
         Log.d(TAG, "enableInternalDataConnectivity(): " + enable);
 
-        try {
-            if (enable) {
-                mPhoneService.enableDataConnectivity();
-            } else {
-                mPhoneService.disableDataConnectivity();
-            }
-        } catch (Exception e) {
-            Log.d(TAG, "Switching data connectivity failed", e);
+        if (enable && mDisabledMobileData) {
+            mConnManager.setMobileDataEnabled(true);
+            mDisabledMobileData = false;
+        } else if (!enable && mConnManager.getMobileDataEnabled()) {
+            mConnManager.setMobileDataEnabled(false);
+            mDisabledMobileData = true;
         }
     }
 
