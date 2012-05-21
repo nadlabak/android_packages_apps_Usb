@@ -803,32 +803,6 @@ public class UsbService extends Service
     private void emitReconfigurationIntent(boolean connected) {
         Intent reconfigureIntent = new Intent(ACTION_USB_RECONFIGURED);
         reconfigureIntent.putExtra(EXTRA_RECONFIGURE_CONNECTED, connected);
-<<<<<<< HEAD
-=======
-        reconfigureIntent.putExtra(EXTRA_RECONFIGURE_CONFIGURED, configured);
-
-        switch (getCurrentUsbMode()) {
-            case USB_MODE_ACM_ETH:
-            case USB_MODE_MTP:
-                functions.add(UsbManager.USB_FUNCTION_MTP);
-                break;
-            case USB_MODE_MSC:
-                functions.add(UsbManager.USB_FUNCTION_MASS_STORAGE);
-                break;
-            case USB_MODE_RNDIS:
-                functions.add(UsbManager.USB_FUNCTION_RNDIS);
-                break;
-        }
-        if (mADBEnabled) {
-            functions.add(UsbManager.USB_FUNCTION_ADB);
-        }
-
-        if (!functions.isEmpty()) {
-            reconfigureIntent.putExtra(EXTRA_RECONFIGURE_FUNCTIONS,
-                    TextUtils.join(",", functions));
-        }
-
->>>>>>> a6796b8... Adapt to usbd built from source
         sendBroadcast(reconfigureIntent);
     }
 
