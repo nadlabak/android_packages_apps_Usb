@@ -10,4 +10,10 @@
     <string name="usb_mode_msc">Dostęp do karty pamięci</string>
     <string name="usb_mode_modem">Telefon jako modem</string>
     <string name="usb_mode_none">Tylko ładowanie</string>
+    <string name="usb_mode_rndis">Sieć przez USB</string>
+    <string name="usb_tethered_message">Tryb połączenia USB nie może zostać zmieniony w trakcie udostępniania sieci przez USB</string>
+    <string name="usb_toast_connecting">USB połączone jako %s.</string>
+    <string name="usb_error_message">Tryb połączenia USB nie może zostać zmieniony na %s.</string>
+    <string name="preparing_ums">Przygotowywanie karty SD.</string>
+    <string name="ums_ready">Karta SD jest teraz udostępniana przez USB.</string>
 </resources>
