@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+    <string name="usb_toast_connecting">USB csatlakoztatva a következőként: %s.</string>
+    <string name="usb_toast_phone_data_disabled">A telefon adatok le lesznek tiltva.</string>
+    <string name="usb_selection_notification_title">USB kapcsolat</string>
+    <string name="usb_selection_notification_message">Válassza ki az USB kapcsolat beállításához</string>
+    <string name="usb_selection_notification_message_for_modem">Érintse meg a leválasztásához és a telefon adatok újraengedélyezéséhez</string>
+    <string name="usb_tethered_message">Az USB csatlakozás módja nem változtatható, amíg az USB megosztás aktív</string>
+    <string name="usb_connection">USB kapcsolat</string>
+    <string name="usb_mode_ngp">Portál &amp; Eszközök</string>
+    <string name="usb_mode_mtp">Médiaeszköz</string>
+    <string name="usb_mode_msc">USB háttértár</string>
+    <string name="usb_mode_rndis">USB hálózat</string>
+    <string name="usb_mode_modem">Modem</string>
+    <string name="usb_mode_none">Csak töltés</string>
+    <string name="usb_error_message">Az USB kapcsolat módja nem változtatható meg a következőre: %s.</string>
+    <string name="preparing_ums">SD kártya előkészítése.</string>
+    <string name="ums_ready">Az SD kártya megosztva USB-n keresztül.</string>
+</resources>
